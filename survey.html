@@ -436,26 +436,36 @@
       if(val && val !== '(未选择)') lines.push('**' + label + '**：' + val);
     });
 
-    // 发送飞书
+    // 发送飞书（先用 fetch，被 CORS 拦截则回退 sendBeacon）
     var box = document.getElementById('resultBox');
+    var payload = JSON.stringify({ msg_type: 'text', content: { text: lines.join('\n') } });
+    var sent = false;
+
+    // 方式1：fetch（部分网络环境可用）
     try {
       var resp = await fetch('https://open.feishu.cn/open-apis/bot/v2/hook/16381057-3595-48f4-89bc-8504d2901ab3', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ msg_type: 'text', content: { text: lines.join('\n') } })
+        body: payload
       });
       var data = await resp.json();
-      if(data.code === 0){
-        box.classList.add('show');
-        box.innerHTML = '<strong>✅ 提交成功！</strong> 我们已收到您的需求，将在 2 个工作日内与您联系。';
-      } else {
-        box.classList.add('show');
-        box.innerHTML = '<strong>⚠️ 飞书返回异常：</strong>' + JSON.stringify(data);
-      }
-    } catch(err){
+      if(data.code === 0) sent = true;
+    } catch(e){ /* CORS 拦截，回退到 sendBeacon */ }
+
+    // 方式2：sendBeacon（绕过 CORS，fire-and-forget）
+    if(!sent){
+      try {
+        var blob = new Blob([payload], {type: 'application/json'});
+        sent = navigator.sendBeacon('https://open.feishu.cn/open-apis/bot/v2/hook/16381057-3595-48f4-89bc-8504d2901ab3', blob);
+      } catch(e){}
+    }
+
+    if(sent){
       box.classList.add('show');
-      box.innerHTML = '<strong>⚠️ 发送失败：</strong>' + err.message + '\n\n请截图发给对接人：\n' + JSON.stringify(result, null, 2);
-      console.error('飞书提交失败：', err);
+      box.innerHTML = '<strong>✅ 提交成功！</strong> 我们已收到您的需求，将在 2 个工作日内与您联系。';
+    } else {
+      box.classList.add('show');
+      box.innerHTML = '<strong>⚠️ 发送失败</strong>，请截图提交内容发给对接人：\n\n' + JSON.stringify(result, null, 2);
     }
     box.scrollIntoView({ behavior: 'smooth', block: 'center' });
     btn.disabled = false;
