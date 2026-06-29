@@ -454,7 +454,12 @@
       }
 
       if(data.code === 0){
-        showConfirmation(lines);
+        try { showConfirmation(lines); } catch(e){
+          box.classList.add('show');
+          box.innerHTML = '<strong>✅ 提交成功！</strong>（摘要生成失败：' + e.message + '）<br><br>我们已收到您的需求。';
+          box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          console.error(e);
+        }
       } else {
         box.classList.add('show');
         box.innerHTML = '<strong>⚠️ 发送异常：</strong>' + JSON.stringify(data);
@@ -471,12 +476,9 @@
     }
 
     function showConfirmation(lines){
+      function pad(n){ return (n < 10 ? '0' : '') + n; }
       var now = new Date();
-      var id = 'RQ' + now.getFullYear()
-        + String(now.getMonth()+1).padStart(2,'0')
-        + String(now.getDate()).padStart(2,'0') + '-'
-        + String(now.getHours()).padStart(2,'0')
-        + String(now.getMinutes()).padStart(2,'0');
+      var id = 'RQ' + now.getFullYear() + pad(now.getMonth()+1) + pad(now.getDate()) + '-' + pad(now.getHours()) + pad(now.getMinutes());
 
       // 把 lines 分组
       var groups = { '基本信息': [], '捐款模块': [], '受助人管理': [], '项目管理': [], '进阶功能': [], '时间预算': [], '补充': [] };
@@ -524,12 +526,13 @@
       html += '<p style="font-size:11px;color:#a16207">如有疑问，请联系对接人或回复飞书消息</p>';
       html += '</div>';
 
-      // 隐藏表单，显示确认页
-      document.getElementById('surveyForm').style.display = 'none';
+      // 隐藏表单区域，显示确认页
+      var sections = document.querySelectorAll('.form-section, .submit-area');
+      for(var s = 0; s < sections.length; s++) sections[s].style.display = 'none';
       document.querySelector('.progress-bar-wrap').style.display = 'none';
-      document.querySelector('.intro').style.display = 'none';
+      document.querySelector('.intro').innerHTML = '<h2>✅ 需求已提交</h2>';
       box.classList.add('show');
-      box.style.cssText = 'display:block;max-height:none;font-size:14px';
+      box.style.cssText = 'display:block;max-height:none;font-size:14px;margin-top:0';
       box.innerHTML = html;
       box.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
