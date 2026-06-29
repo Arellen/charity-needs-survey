@@ -437,7 +437,7 @@
     });
 
     // 计算飞书签名
-    var SECRET = 'AH3Ef7u3dL8x8J8A4MMjSb';
+    var SECRET = 'RbVRjrUpzmvOI63SL1RQSc';
     var ts = Math.floor(Date.now() / 1000).toString();
     var enc = new TextEncoder();
     var key = await crypto.subtle.importKey('raw', enc.encode(SECRET), {name:'HMAC', hash:'SHA-256'}, false, ['sign']);
@@ -448,7 +448,7 @@
     // 发送飞书
     var box = document.getElementById('resultBox');
     try {
-      var resp = await fetch('https://open.feishu.cn/open-apis/bot/v2/hook/312ede47-b3e2-414a-8dfd-cda7cd9bf969', {
+      var resp = await fetch('https://open.feishu.cn/open-apis/bot/v2/hook/16381057-3595-48f4-89bc-8504d2901ab3', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ timestamp: ts, sign: sign, msg_type: 'text', content: { text: lines.join('\n') } })
