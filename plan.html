@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>项目计划 · 公益小程序</title>
+<style>
+  :root{
+    --green:#1a6b4b;--green-light:#ecfdf5;--orange:#e8734a;
+    --gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;--gray-400:#9ca3af;--gray-600:#6b7280;--gray-800:#1f2937;
+    --radius:12px;--shadow:0 1px 3px rgba(0,0,0,.08);
+    --blue:#2563eb;--blue-light:#eff6ff;--purple:#7c3aed;--purple-light:#f5f3ff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--gray-50);color:var(--gray-800);line-height:1.7;
+  }
+  .topbar{
+    position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid var(--gray-200);
+    padding:14px 16px;display:flex;align-items:center;gap:12px;
+  }
+  .topbar .back{font-size:14px;color:var(--gray-600);text-decoration:none}
+  .topbar .back:hover{color:var(--green)}
+  .topbar h1{font-size:17px;font-weight:700}
+
+  .container{max-width:860px;margin:0 auto;padding:20px 16px 60px}
+
+  /* ===== Overview ===== */
+  .overview{
+    text-align:center;padding:24px 0 8px;
+  }
+  .overview h2{font-size:22px;color:var(--green);margin-bottom:6px}
+  .overview p{font-size:14px;color:var(--gray-400);max-width:500px;margin:0 auto}
+
+  /* ===== Phase timeline ===== */
+  .timeline{position:relative;padding-left:32px;margin-top:20px}
+  .timeline::before{
+    content:'';position:absolute;left:14px;top:0;bottom:0;
+    width:3px;background:var(--gray-200);border-radius:2px;
+  }
+
+  .phase{margin-bottom:36px;position:relative}
+  .phase::before{
+    content:'';position:absolute;left:-22px;top:22px;
+    width:14px;height:14px;border-radius:50%;border:3px solid #fff;
+    z-index:2;
+  }
+  .phase.p0::before{background:var(--green);box-shadow:0 0 0 4px var(--green-light)}
+  .phase.p1::before{background:var(--blue);box-shadow:0 0 0 4px var(--blue-light)}
+  .phase.p2::before{background:var(--purple);box-shadow:0 0 0 4px var(--purple-light)}
+
+  .phase-header{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+  .phase-header .tag{
+    padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:.5px;
+  }
+  .phase.p0 .tag{background:var(--green-light);color:var(--green)}
+  .phase.p1 .tag{background:var(--blue-light);color:var(--blue)}
+  .phase.p2 .tag{background:var(--purple-light);color:var(--purple)}
+  .phase-header .time{
+    font-size:13px;color:var(--gray-400);padding:4px 10px;background:var(--gray-100);border-radius:10px;
+  }
+  .phase-header .label{font-size:15px;font-weight:600}
+
+  .phase-body{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--gray-200);overflow:hidden}
+
+  .phase-body .summary{
+    padding:14px 18px;font-size:14px;border-bottom:1px solid var(--gray-100);
+  }
+  .phase.p0 .summary{background:linear-gradient(135deg,#f0fdf4,#fff)}
+  .phase.p1 .summary{background:linear-gradient(135deg,#eff6ff,#fff)}
+  .phase.p2 .summary{background:linear-gradient(135deg,#f5f3ff,#fff)}
+
+  .feature-list{padding:8px 0}
+  .feature-item{
+    display:flex;align-items:flex-start;gap:12px;padding:12px 18px;
+    border-bottom:1px solid var(--gray-50);font-size:14px;
+  }
+  .feature-item:last-child{border-bottom:none}
+  .feature-item .icon{font-size:18px;flex-shrink:0;width:24px;text-align:center}
+  .feature-item .text{flex:1}
+  .feature-item .text .name{font-weight:600;margin-bottom:2px}
+  .feature-item .text .desc{font-size:12px;color:var(--gray-400)}
+
+  /* ===== Summary card ===== */
+  .summary-cards{display:flex;gap:14px;margin:28px 0 8px;flex-wrap:wrap}
+  .sum-card{
+    flex:1;min-width:160px;background:#fff;border-radius:var(--radius);
+    padding:16px 18px;text-align:center;box-shadow:var(--shadow);border:1px solid var(--gray-200);
+  }
+  .sum-card .val{font-size:28px;font-weight:800}
+  .sum-card .lbl{font-size:12px;color:var(--gray-400);margin-top:2px}
+  .sum-card.p0 .val{color:var(--green)}
+  .sum-card.p1 .val{color:var(--blue)}
+  .sum-card.p2 .val{color:var(--purple)}
+
+  /* ===== What's not included ===== */
+  .exclude-box{
+    background:#fff;border-radius:var(--radius);padding:18px 22px;
+    border:1px solid var(--gray-200);box-shadow:var(--shadow);margin-top:24px;
+  }
+  .exclude-box h3{font-size:15px;margin-bottom:10px;color:var(--gray-600)}
+  .exclude-box ul{list-style:none;font-size:13px;color:var(--gray-400)}
+  .exclude-box ul li{padding:4px 0}
+  .exclude-box ul li::before{content:'✗ ';color:#ef4444;margin-right:6px}
+
+  /* ===== CTA ===== */
+  .cta{text-align:center;padding:32px 0 20px}
+  .cta a{
+    display:inline-block;padding:14px 40px;background:var(--orange);color:#fff;
+    border-radius:50px;font-size:16px;font-weight:600;text-decoration:none;
+    box-shadow:0 4px 14px rgba(232,115,74,.35);
+  }
+
+  /* ===== Depends tag ===== */
+  .dep-tag{
+    display:inline-block;padding:1px 8px;border-radius:4px;font-size:10px;margin-left:6px;
+    background:#fef3c7;color:#92400e;vertical-align:middle;
+  }
+  .dep-tag.opt{background:#f3f4f6;color:#6b7280}
+
+  @media(max-width:500px){
+    .summary-cards{flex-direction:column}
+    .sum-card{min-width:auto}
+    .phase-header{flex-direction:column;align-items:flex-start;gap:6px}
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a href="index.html" class="back">← 返回首页</a>
+  <h1>📅 项目分阶段计划</h1>
+</div>
+
+<div class="container">
+
+<div class="overview">
+  <h2>三阶段渐进式交付</h2>
+  <p>先跑通核心闭环 → 机构试用反馈 → 再决定哪些进阶功能优先做。不一次全做完，降低风险。</p>
+</div>
+
+<!-- 总览卡片 -->
+<div class="summary-cards">
+  <div class="sum-card p0">
+    <div class="val">~8周</div>
+    <div class="lbl">第一阶段 · 核心闭环</div>
+  </div>
+  <div class="sum-card p1">
+    <div class="val">~4周</div>
+    <div class="lbl">第二阶段 · 体验增强</div>
+  </div>
+  <div class="sum-card p2">
+    <div class="val">按需</div>
+    <div class="lbl">第三阶段 · 生态扩展</div>
+  </div>
+</div>
+
+<!-- ===== Phase Timeline ===== -->
+<div class="timeline">
+
+  <!-- P0 -->
+  <div class="phase p0">
+    <div class="phase-header">
+      <span class="tag">第一阶段</span>
+      <span class="time">⏱ 预计 6-8 周</span>
+      <span class="label">核心闭环 · 跑通全流程</span>
+    </div>
+    <div class="phase-body">
+      <div class="summary">
+        <strong>🎯 目标</strong>：小程序可以上线使用，捐款人能捐款、工作人员能录入受助人、管理员能管项目。<br>
+        <strong>✅ 交付标准</strong>：真实用户能完成"浏览→捐款→支付→收到证书"完整流程。
+      </div>
+      <div class="feature-list">
+        <div class="feature-item">
+          <span class="icon">🔐</span>
+          <span class="text"><div class="name">微信登录 + 角色权限</div><div class="desc">用户一键授权登录，按角色区分权限（捐款人/录入员/管理员）</div></span>
+        </div>
+        <div class="feature-item">
+          <span class="icon">🏠</span>
+          <span class="text"><div class="name">项目广场 + 分类筛选</div><div class="desc">首页展示在筹项目列表，按助学/医疗/救灾等分类切换，进度条展示</div></span>
+        </div>
+        <div class="feature-item">
+          <span class="icon">📄</span>
+          <span class="text"><div class="name">项目详情页</div><div class="desc">背景介绍、预算明细表、执行计划、已捐款人列表</div></span>
+        </div>
+        <div class="feature-item">
+          <span class="icon">💳</span>
+          <span class="text"><div class="name">微信支付捐款</div><div class="desc">固定档位+自定义金额 → 调用微信支付 → 捐款完成。这是最核心的链路</div></span>
+        </div>
+        <div class="feature-item">
+          <span class="icon">🎖️</span>
+          <span class="text"><div class="name">电子捐赠证书</div><div class="desc">自动生成证书图片，可保存到相册、分享朋友圈/微信群</div></span>
+        </div>
+        <div class="feature-item">
+          <span class="icon">👤</span>
+          <span class="text"><div class="name">捐款人个人中心</div><div class="desc">我的捐款记录、累计总额、证书合集</div></span>
+        </div>
+        <div class="feature-item">
+          <span class="icon">📝</span>
+          <span class="text"><div class="name">受助人录入 + 拍照上传</div><div class="desc">一线人员现场填表、拍照上传证明材料、提交审核</div></span>
+        </div>
+        <div class="feature-item">
+          <span class="icon">✅</span>
+          <span class="text"><div class="name">两级审核流程</div><div class="desc">一线录入 → 负责人审核（通过/退回附原因），受助人进入"待帮扶库"</div></span>
+        </div>
+        <div class="feature-item">
+          <span class="icon">📊</span>
+          <span class="text"><div class="name">项目立项 + 管理后台</div><div class="desc">创建项目、填写预算和计划、管理端查看筹款进度和捐款明细</div></span>
+        </div>
+        <div class="feature-item">
+          <span class="icon">💰</span>
+          <span class="text"><div class="name">资金支出记录</div><div class="desc">记录每笔支出用途和凭证，余额实时计算</div></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P1 -->
+  <div class="phase p1">
+    <div class="phase-header">
+      <span class="tag">第二阶段</span>
+      <span class="time">⏱ 预计 3-4 周</span>
+      <span class="label">体验增强 · 根据第一阶段反馈优化</span>
+    </div>
+    <div class="phase-body">
+      <div class="summary">
+        <strong>🎯 目标</strong>：提升捐款人复捐率、提升机构运营效率。<br>
+        <strong>⚠️ 触发条件</strong>：第一阶段上线并运行至少 2 周，收集真实用户反馈后再启动。
+      </div>
+      <div class="feature-list">
+        <div class="feature-item">
+          <span class="icon">📢</span>
+          <span class="text"><div class="name">项目进展发布 + 消息推送</div><div class="desc">发布图文动态，通过微信订阅消息推送给捐款人和关注者</div></span>
+        </div>
+        <div class="feature-item">
+          <span class="icon">🔔</span>
+          <span class="text"><div class="name">捐款反馈闭环</div><div class="desc">捐款人收到具体反馈——"您的捐款已帮助云南昭通3名学生" <span class="dep-tag opt">可选</span></div></span>
+        </div>
+        <div class="feature-item">
+          <span class="icon">📈</span>
+          <span class="text"><div class="name">数据看板</div><div class="desc">总筹款额、日捐款趋势、金额分布、捐款来源渠道分析</div></span>
+        </div>
+        <div class="feature-item">
+          <span class="icon">📎</span>
+          <span class="text"><div class="name">场景化捐款入口</div><div class="desc">生成项目专属小程序码、公众号文章内嵌捐款按钮 <span class="dep-tag opt">可选</span></div></span>
+        </div>
+        <div class="feature-item">
+          <span class="icon">📥</span>
+          <span class="text"><div class="name">Excel 导出</div><div class="desc">受助人数据、捐款明细、支出记录均可导出 Excel</div></span>
+        </div>
+        <div class="feature-item">
+          <span class="icon">🧾</span>
+          <span class="text"><div class="name">捐赠发票申请</div><div class="desc">捐款人在线提交发票申请，机构审核后发送电子发票 <span class="dep-tag opt">可选</span></div></span>
+        </div>
+        <div class="feature-item">
+          <span class="icon">🔍</span>
+          <span class="text"><div class="name">搜索 + 筛选优化</div><div class="desc">全文搜索项目、受助人，高级筛选组合</div></span>
+        </div>
+        <div class="feature-item">
+          <span class="icon">🛠️</span>
+          <span class="text"><div class="name">第一阶段反馈修复</div><div class="desc">根据真实使用中发现的问题进行 Bug 修复和体验微调</div></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P2 -->
+  <div class="phase p2">
+    <div class="phase-header">
+      <span class="tag">第三阶段</span>
+      <span class="time">⏱ 按需排期</span>
+      <span class="label">生态扩展 · 根据机构需求选择性开发</span>
+    </div>
+    <div class="phase-body">
+      <div class="summary">
+        <strong>🎯 目标</strong>：引入企业合作、扩大影响力。<br>
+        <strong>⚠️ 以下功能全部可选</strong>，根据机构在第一/二阶段后的实际需要选择性开发，不做预设。
+      </div>
+      <div class="feature-list">
+        <div class="feature-item">
+          <span class="icon">🏢</span>
+          <span class="text"><div class="name">企业配捐</div><div class="desc">企业出资配捐池，用户捐1企业配1。配捐进度展示、企业品牌露出</div></span>
+        </div>
+        <div class="feature-item">
+          <span class="icon">💚</span>
+          <span class="text"><div class="name">尊严支付</div><div class="desc">受助人支付象征性金额（如1分钱），保护自尊心。按项目可选开启</div></span>
+        </div>
+        <div class="feature-item">
+          <span class="icon">🤝</span>
+          <span class="text"><div class="name">合作机构管理</div><div class="desc">邀请社区、村委会、其他NGO作为合作机构，数据隔离，各看各的</div></span>
+        </div>
+        <div class="feature-item">
+          <span class="icon">🔄</span>
+          <span class="text"><div class="name">月捐（定期扣款）</div><div class="desc">捐款人开通每月自动捐款，稳定善款来源</div></span>
+        </div>
+        <div class="feature-item">
+          <span class="icon">📺</span>
+          <span class="text"><div class="name">数据大屏</div><div class="desc">电视/大屏实时展示核心数据，适合办公室展示、接待参访</div></span>
+        </div>
+        <div class="feature-item">
+          <span class="icon">📊</span>
+          <span class="text"><div class="name">企业端数据看板</div><div class="desc">配捐企业专属看板，查看配捐消耗、捐款人画像、项目执行效果</div></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.timeline -->
+
+<!-- 不做的 -->
+<div class="exclude-box">
+  <h3>🚫 明确不在此项目范围内</h3>
+  <ul>
+    <li>善款的金融托管——资金直接进机构对公账户，平台不碰钱</li>
+    <li>受助人身份真伪的 AI 鉴定——证明材料由机构人工审核</li>
+    <li>社交类功能（评论、点赞、排行榜）——避免诱导分享违规</li>
+    <li>资金自动拨付——每笔支出需人工确认，不能系统自动打款</li>
+  </ul>
+</div>
+
+<!-- CTA -->
+<div class="cta">
+  <p style="font-size:14px;color:var(--gray-400);margin-bottom:16px">确认好需求范围了吗？去填写问卷吧</p>
+  <a href="survey.html">📋 填写需求问卷 →</a>
+</div>
+
+</div>
+</body>
+</html>
