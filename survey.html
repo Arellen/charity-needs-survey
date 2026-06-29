@@ -436,12 +436,23 @@
       if(val && val !== '(未选择)') lines.push('**' + label + '**：' + val);
     });
 
-    // 发送飞书（先用 fetch，被 CORS 拦截则回退 sendBeacon）
+    // 计算飞书签名
+    var SECRET = 'RbVRjrUpzmvOI63SL1RQSc';
+    var ts = Math.floor(Date.now() / 1000).toString();
+    var enc = new TextEncoder();
+    var key = await crypto.subtle.importKey('raw', enc.encode(SECRET), {name:'HMAC', hash:'SHA-256'}, false, ['sign']);
+    var sigBuf = await crypto.subtle.sign('HMAC', key, enc.encode(ts + '\n' + SECRET));
+    // 安全的 ArrayBuffer → Base64（避免 apply 调用栈溢出）
+    var bytes = new Uint8Array(sigBuf);
+    var binary = '';
+    for(var i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    var sign = btoa(binary);
+
+    // 发送飞书（fetch 优先，CORS拦截则回退 sendBeacon）
     var box = document.getElementById('resultBox');
-    var payload = JSON.stringify({ msg_type: 'text', content: { text: lines.join('\n') } });
+    var payload = JSON.stringify({ timestamp: ts, sign: sign, msg_type: 'text', content: { text: lines.join('\n') } });
     var sent = false;
 
-    // 方式1：fetch（部分网络环境可用）
     try {
       var resp = await fetch('https://open.feishu.cn/open-apis/bot/v2/hook/16381057-3595-48f4-89bc-8504d2901ab3', {
         method: 'POST',
@@ -450,9 +461,8 @@
       });
       var data = await resp.json();
       if(data.code === 0) sent = true;
-    } catch(e){ /* CORS 拦截，回退到 sendBeacon */ }
+    } catch(e){}
 
-    // 方式2：sendBeacon（绕过 CORS，fire-and-forget）
     if(!sent){
       try {
         var blob = new Blob([payload], {type: 'application/json'});
