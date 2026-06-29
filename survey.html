@@ -436,29 +436,23 @@
       if(val && val !== '(未选择)') lines.push('**' + label + '**：' + val);
     });
 
-    // 计算飞书签名（key=timestamp+\n+secret, data=空字符串）
-    var SECRET = 'RbVRjrUpzmvOI63SL1RQSc';
-    var ts = Math.floor(Date.now() / 1000).toString();
-    var enc = new TextEncoder();
-    var key = await crypto.subtle.importKey('raw', enc.encode(ts + '\n' + SECRET), {name:'HMAC', hash:'SHA-256'}, false, ['sign']);
-    var sigBuf = await crypto.subtle.sign('HMAC', key, enc.encode(''));
-    // 安全的 ArrayBuffer → Base64（避免 apply 调用栈溢出）
-    var bytes = new Uint8Array(sigBuf);
-    var binary = '';
-    for(var i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-    var sign = btoa(binary);
-
-    // 通过腾讯云 SCF 中继发送飞书
+    // 发送到腾讯云 SCF（SCF 负责算签名并转发飞书）
+    var text = lines.join('\n');
     var box = document.getElementById('resultBox');
-    var payload = { timestamp: ts, sign: sign, msg_type: 'text', content: { text: lines.join('\n') } };
 
     try {
       var resp = await fetch('https://1448396925-j94riyg7qv.ap-guangzhou.tencentscf.com', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ text: text })
       });
-      var data = await resp.json();
+      var raw = await resp.text();
+      var data = JSON.parse(raw);
+      // SCF 函数 URL 可能把 Lambda 格式原样返回，需要解析 body
+      if (data.body && typeof data.body === 'string') {
+        try { data = JSON.parse(data.body); } catch(e) {}
+      }
+
       if(data.code === 0){
         box.classList.add('show');
         box.innerHTML = '<strong>✅ 提交成功！</strong> 我们已收到您的需求，将在 2 个工作日内与您联系。';
