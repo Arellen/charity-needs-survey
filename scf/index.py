@@ -2,18 +2,14 @@
 """
 腾讯云函数 SCF · 飞书 Webhook 中继 + 多维表格存档
 """
-import json, urllib.request, hmac, hashlib, base64, time
+import json, urllib.request, hmac, hashlib, base64, time, os
 
 # ===================== 配置 =====================
-
-# 飞书应用凭据（敏感信息放在 SCF 环境变量中）
-import os
 APP_ID = os.environ.get('APP_ID', 'cli_aac89563e1e59bdf')
 APP_SECRET = os.environ.get('APP_SECRET', '')
 BITABLE_APP_TOKEN = os.environ.get('BITABLE_APP_TOKEN', 'K3jLbFejyaeZzPsDTzmcEco5ndl')
+FEISHU_API = 'https://open.feishu.cn/open-apis'
 
-# 项目配置（每新增一个项目在下面加一条）
-# webhook_secret 从环境变量读取，不在代码中明文存储
 PROJECTS = {
     'charity': {
         'name': '公益小程序',
@@ -23,100 +19,63 @@ PROJECTS = {
     },
 }
 
-# 飞书表格 API 基础地址
-FEISHU_API = 'https://open.feishu.cn/open-apis'
-
-# ===================== 缓存 =====================
+# ===================== Token 缓存 =====================
 _token_cache = {'token': '', 'expires': 0}
 
 def get_tenant_token():
-    """获取 tenant_access_token（2小时有效，带缓存）"""
     now = time.time()
     if _token_cache['token'] and now < _token_cache['expires']:
         return _token_cache['token']
-
     url = f'{FEISHU_API}/auth/v3/tenant_access_token/internal'
     body = json.dumps({'app_id': APP_ID, 'app_secret': APP_SECRET}).encode()
-    try:
-        req = urllib.request.Request(url, data=body,
-            headers={'Content-Type': 'application/json'})
-        raw = urllib.request.urlopen(req, timeout=5).read()
-        resp = json.loads(raw)
-        print(f'[token] APP_ID={APP_ID[:8]}... SECRET_LEN={len(APP_SECRET)} resp={resp}')
-        token = resp.get('tenant_access_token', '')
-        if not token:
-            raise Exception(f'获取token失败: {resp}')
-        _token_cache['token'] = token
-        _token_cache['expires'] = now + 3600
-        return token
-    except Exception as e:
-        print(f'[token] 失败: {e}')
-        raise
+    req = urllib.request.Request(url, data=body, headers={'Content-Type': 'application/json'})
+    resp = json.loads(urllib.request.urlopen(req, timeout=5).read())
+    token = resp.get('tenant_access_token', '')
+    if not token:
+        raise Exception(f'获取token失败: {resp}')
+    _token_cache['token'] = token
+    _token_cache['expires'] = now + 3600
+    return token
 
 def feishu_sign(secret):
-    """生成飞书 Webhook 签名"""
     ts = int(time.time())
     sign_str = f'{ts}\n{secret}'
     sign = base64.b64encode(hmac.new(sign_str.encode(), b'', hashlib.sha256).digest()).decode()
     return str(ts), sign
 
 def send_webhook(url, secret, text):
-    """发飞书群消息"""
     ts, sign = feishu_sign(secret)
-    body = json.dumps({
-        'timestamp': ts, 'sign': sign,
-        'msg_type': 'text', 'content': {'text': text}
-    }).encode()
-    req = urllib.request.Request(url, data=body,
-        headers={'Content-Type': 'application/json'})
+    body = json.dumps({'timestamp': ts, 'sign': sign, 'msg_type': 'text', 'content': {'text': text}}).encode()
+    req = urllib.request.Request(url, data=body, headers={'Content-Type': 'application/json'})
     return json.loads(urllib.request.urlopen(req, timeout=5).read())
 
 def write_bitable(table_id, fields):
-    """写一行到多维表格"""
     token = get_tenant_token()
     url = f'{FEISHU_API}/bitable/v1/apps/{BITABLE_APP_TOKEN}/tables/{table_id}/records'
     body = json.dumps({'fields': fields}).encode()
-    print(f'[bitable] table={table_id} fields_count={len(fields)} token={token[:10]}...')
-    try:
-        req = urllib.request.Request(url, data=body, headers={
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {token}',
-        })
-        raw = urllib.request.urlopen(req, timeout=5).read()
-        resp = json.loads(raw)
-        print(f'[bitable] 成功: code={resp.get("code")} msg={resp.get("msg")}')
-        return resp
-    except urllib.error.HTTPError as e:
-        err_body = e.read().decode()
-        print(f'[bitable] HTTP {e.code}: {err_body}')
-        raise Exception(f'HTTP {e.code}: {err_body}')
-    except Exception as e:
-        print(f'[bitable] 失败: {e}')
-        raise
+    req = urllib.request.Request(url, data=body, headers={
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {token}',
+    })
+    return json.loads(urllib.request.urlopen(req, timeout=5).read())
 
 def map_to_fields(project_name, ver, lines):
-    """把问卷文本行映射为多维表格字段"""
-    # 文本行格式：**字段名**：值
     raw = {}
     for ln in lines:
         ln = ln.strip()
-        if not ln or not ln.startswith('**'):
-            continue
+        if not ln or not ln.startswith('**'): continue
         try:
-            # **机构名称**：XX基金会
-            key_end = ln.index('**', 2)
-            key = ln[2:key_end]
-            val = ln[key_end+3:]  # ** + ： = 3 字符
+            end = ln.index('**', 2)
+            key = ln[2:end]
+            val = ln[end+3:]  # ** ： = 3 chars
             raw[key] = val
-        except:
-            continue
+        except: continue
 
     def p(n): return (n < 10 and '0' or '') + str(n)
     now = time.localtime()
     submit_id = f'RQ{now.tm_year}{p(now.tm_mon)}{p(now.tm_mday)}-{p(now.tm_hour)}{p(now.tm_min)}'
 
-    # 映射到表格字段（多选字段存为文本避免API选项匹配问题）
-    fields = {
+    return {
         '提交编号': submit_id,
         '机构名称': raw.get('机构名称', ''),
         '填表人': raw.get('填表人', ''),
@@ -146,38 +105,27 @@ def map_to_fields(project_name, ver, lines):
         '参考小程序': raw.get('参考小程序', ''),
         '版本标记': f'{project_name} - {ver}',
     }
-    return fields
 
 # ===================== 主入口 =====================
-
 def main_handler(event, context):
-    # OPTIONS 预检
     method = event.get('httpMethod') or \
              event.get('requestContext', {}).get('http', {}).get('method', 'POST')
     if method == 'OPTIONS':
-        return {
-            'statusCode': 200,
-            'headers': {'Access-Control-Allow-Origin': '*',
-                        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                        'Access-Control-Allow-Headers': 'Content-Type'},
-            'body': '',
-        }
+        return {'statusCode': 200, 'headers': {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type'}, 'body': ''}
 
-    # 解析请求
     body = event.get('body', '{}')
-    if isinstance(body, dict):
-        body = json.dumps(body)
+    if isinstance(body, dict): body = json.dumps(body)
     payload = json.loads(body)
     text = payload.get('text', '')
     project_id = payload.get('project', 'charity')
     ver = payload.get('ver', 'v1')
 
-    # 查项目配置
     proj = PROJECTS.get(project_id)
     if not proj:
         return {'statusCode': 400, 'headers': {'Access-Control-Allow-Origin': '*'}, 'body': '{"error":"unknown project"}'}
-
-    lines = text.split('\n')
 
     # 1. 发飞书群消息
     try:
@@ -188,7 +136,7 @@ def main_handler(event, context):
     # 2. 写多维表格
     bitable_resp = {}
     try:
-        fields = map_to_fields(proj['name'], ver, lines)
+        fields = map_to_fields(proj['name'], ver, text.split('\n'))
         bitable_resp = write_bitable(proj['table_id'], fields)
     except Exception as e:
         bitable_resp = {'error': str(e)}
@@ -197,6 +145,5 @@ def main_handler(event, context):
         'statusCode': 200,
         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
         'body': json.dumps({'code': webhook_resp.get('code', 0),
-                            'webhook': webhook_resp,
                             'bitable': bitable_resp}, ensure_ascii=False),
     }
