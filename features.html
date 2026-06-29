@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>功能展示 · 公益小程序</title>
+<style>
+  :root{
+    --green:#1a6b4b;--green-light:#ecfdf5;--orange:#e8734a;
+    --gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;--gray-400:#9ca3af;--gray-600:#6b7280;--gray-800:#1f2937;
+    --radius:12px;--shadow:0 1px 3px rgba(0,0,0,.08);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--gray-50);color:var(--gray-800);line-height:1.7;
+  }
+
+  /* ===== Top nav ===== */
+  .topbar{
+    position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid var(--gray-200);
+    padding:12px 16px;display:flex;align-items:center;gap:12px;overflow-x:auto;
+  }
+  .topbar .back{font-size:14px;color:var(--gray-600);text-decoration:none;flex-shrink:0}
+  .topbar .back:hover{color:var(--green)}
+  .topbar nav{display:flex;gap:4px;flex-shrink:0}
+  .topbar nav a{
+    padding:6px 14px;border-radius:20px;font-size:13px;text-decoration:none;
+    color:var(--gray-600);white-space:nowrap;transition:all .15s;
+  }
+  .topbar nav a:hover,.topbar nav a.active{background:var(--green-light);color:var(--green);font-weight:600}
+
+  .container{max-width:900px;margin:0 auto;padding:20px 16px 60px}
+
+  /* ===== Section ===== */
+  .mod-section{margin-bottom:40px;scroll-margin-top:80px}
+  .mod-title{
+    font-size:22px;font-weight:700;color:var(--green);margin-bottom:6px;
+    padding-bottom:10px;border-bottom:2px solid var(--green-light);
+    display:flex;align-items:center;gap:10px;
+  }
+  .mod-title .num{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:30px;height:30px;background:var(--green);color:#fff;border-radius:50%;font-size:15px;
+  }
+  .mod-subtitle{font-size:14px;color:var(--gray-400);margin-bottom:20px}
+
+  /* ===== Feature block ===== */
+  .feature-block{display:flex;gap:28px;align-items:flex-start;margin-bottom:28px;flex-wrap:wrap}
+  .feature-block .desc{flex:1;min-width:280px}
+  .feature-block .desc h4{font-size:17px;margin-bottom:8px;color:var(--gray-800)}
+  .feature-block .desc p{font-size:14px;color:var(--gray-600);line-height:1.8}
+  .feature-block .desc .badge{
+    display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;margin-right:4px;
+  }
+  .badge-core{background:#dbeafe;color:#1e40af}
+  .badge-opt{background:#fef3c7;color:#92400e}
+  .badge-adv{background:#fce7f3;color:#9d174d}
+
+  /* ===== Phone mockup ===== */
+  .phone-wrap{flex-shrink:0}
+  .phone{
+    width:280px;background:#fff;border-radius:28px;border:3px solid #1f2937;
+    overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.12);
+    position:relative;
+  }
+  .phone .status-bar{
+    background:#1f2937;color:#fff;padding:8px 16px 6px;font-size:10px;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .phone .nav-bar{
+    background:#fff;padding:8px 12px;font-size:15px;font-weight:600;
+    text-align:center;border-bottom:1px solid #f3f4f6;position:relative;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .phone .nav-bar .back-btn{position:absolute;left:12px;font-size:13px;color:var(--gray-600);font-weight:400}
+  .phone .content{padding:12px;max-height:420px;overflow-y:auto;background:#f8fafc}
+  .phone .tab-bar{
+    display:flex;border-top:1px solid #e5e7eb;background:#fff;
+  }
+  .phone .tab-bar .tab{
+    flex:1;text-align:center;padding:6px 0 2px;font-size:10px;color:var(--gray-400);
+  }
+  .phone .tab-bar .tab.active{color:var(--green)}
+  .phone .tab-bar .tab .t-icon{font-size:16px;display:block}
+
+  /* ===== Mock components ===== */
+  .mc-banner{
+    background:linear-gradient(135deg,#1a6b4b,#2d8a5e);color:#fff;
+    padding:14px;border-radius:10px;margin-bottom:10px;font-size:12px;
+    text-align:center;
+  }
+  .mc-card{
+    background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px;
+    box-shadow:0 1px 2px rgba(0,0,0,.04);display:flex;gap:10px;align-items:center;
+  }
+  .mc-card .thumb{
+    width:72px;height:56px;border-radius:8px;flex-shrink:0;
+    background:linear-gradient(135deg,#a7f3d0,#6ee7b7);
+    display:flex;align-items:center;justify-content:center;font-size:22px;
+  }
+  .mc-card .info{flex:1;min-width:0}
+  .mc-card .info .title{font-size:13px;font-weight:600;margin-bottom:2px}
+  .mc-card .info .meta{font-size:10px;color:var(--gray-400)}
+  .mc-progress{
+    height:5px;background:#e5e7eb;border-radius:3px;margin-top:4px;overflow:hidden;
+  }
+  .mc-progress .fill{height:100%;background:var(--green);border-radius:3px}
+
+  .mc-btn{
+    display:inline-block;padding:8px 20px;border-radius:20px;font-size:12px;font-weight:600;
+    text-align:center;cursor:pointer;
+  }
+  .mc-btn-primary{background:var(--orange);color:#fff}
+  .mc-btn-outline{border:1px solid var(--green);color:var(--green);background:#fff}
+  .mc-btn-block{display:block;width:100%}
+
+  .mc-tag{
+    display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;
+    background:#fef3c7;color:#92400e;margin-right:4px;
+  }
+  .mc-table{width:100%;font-size:10px;border-collapse:collapse;margin:8px 0}
+  .mc-table td,.mc-table th{padding:4px 6px;border-bottom:1px solid #e5e7eb}
+  .mc-table th{text-align:left;color:var(--gray-400);font-weight:400}
+  .mc-table td{text-align:right}
+
+  .mc-input{
+    width:100%;padding:6px 10px;border:1px solid #e5e7eb;border-radius:6px;
+    font-size:11px;margin-bottom:6px;background:#fff;
+  }
+  .mc-upload{
+    border:1px dashed #d1d5db;border-radius:8px;padding:14px;text-align:center;
+    font-size:11px;color:var(--gray-400);margin-bottom:8px;
+  }
+  .mc-stat-row{display:flex;gap:8px;margin-bottom:8px}
+  .mc-stat-box{
+    flex:1;background:#fff;border-radius:8px;padding:10px;text-align:center;
+    box-shadow:0 1px 2px rgba(0,0,0,.04);
+  }
+  .mc-stat-box .val{font-size:18px;font-weight:700;color:var(--green)}
+  .mc-stat-box .lbl{font-size:10px;color:var(--gray-400)}
+
+  .mc-match-banner{
+    background:linear-gradient(135deg,#fef3c7,#fde68a);padding:8px 10px;border-radius:8px;
+    font-size:10px;text-align:center;margin-bottom:8px;font-weight:600;color:#92400e;
+  }
+  .mc-cert{
+    background:linear-gradient(180deg,#fffbe6,#fff);border:2px solid #fbbf24;
+    border-radius:12px;padding:24px 16px;text-align:center;
+  }
+  .mc-cert .cert-title{font-size:13px;color:#b45309;margin-bottom:12px}
+  .mc-cert .cert-amount{font-size:36px;font-weight:800;color:#1f2937}
+  .mc-cert .cert-detail{font-size:10px;color:var(--gray-400);margin-top:8px;line-height:1.6}
+
+  /* ===== Tip box ===== */
+  .tip-box{
+    background:#fffbe6;border-left:4px solid #f59e0b;padding:10px 14px;
+    border-radius:0 8px 8px 0;font-size:13px;color:#92400e;margin-top:12px;
+  }
+
+  @media(max-width:640px){
+    .feature-block{flex-direction:column}
+    .phone{width:260px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Top bar ===== -->
+<div class="topbar">
+  <a href="index.html" class="back">← 返回首页</a>
+  <nav>
+    <a href="#donate">捐款渠道</a>
+    <a href="#beneficiary">受助人管理</a>
+    <a href="#project">项目管理</a>
+    <a href="#advanced">进阶功能</a>
+  </nav>
+</div>
+
+<div class="container">
+
+<!-- ==================== 模块A：捐款渠道 ==================== -->
+<div class="mod-section" id="donate">
+<div class="mod-title"><span class="num">A</span> 捐款渠道</div>
+<div class="mod-subtitle">让社会公众方便地为项目捐款，全程微信内完成，一分钟捐完</div>
+
+<!-- A1: 项目广场 -->
+<div class="feature-block">
+  <div class="desc">
+    <h4>🏠 项目广场（首页）<span class="badge badge-core">核心</span></h4>
+    <p>
+      打开小程序后，捐款人看到项目卡片列表。顶部可切换分类（助学/医疗/救灾/环保等）。
+      每个卡片显示封面图、标题、已筹进度条、剩余天数。<br>
+      <strong>亮点</strong>：一屏看完所有项目，哪个紧急、哪个快结束一目了然。
+    </p>
+  </div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="status-bar"><span>9:41</span><span>▮▮▮▮ ▮▮ Wi-Fi</span></div>
+      <div class="nav-bar">❤️ 公益项目</div>
+      <div class="content">
+        <div class="mc-banner">🌟 您每捐1元，爱心企业配捐1元</div>
+        <div style="display:flex;gap:6px;margin-bottom:8px;overflow-x:auto;">
+          <span class="mc-tag" style="background:#1a6b4b;color:#fff">全部</span>
+          <span class="mc-tag">助学</span><span class="mc-tag">医疗</span><span class="mc-tag">救灾</span><span class="mc-tag">环保</span>
+        </div>
+        <div class="mc-card">
+          <div class="thumb">📚</div>
+          <div class="info">
+            <div class="title">山区儿童助学计划</div>
+            <div class="meta">已筹 ¥68,500 · 目标 ¥100,000</div>
+            <div class="mc-progress"><div class="fill" style="width:68%"></div></div>
+            <div class="meta" style="margin-top:2px">剩余 23 天 · 1,250 人捐款</div>
+          </div>
+        </div>
+        <div class="mc-card">
+          <div class="thumb" style="background:linear-gradient(135deg,#fde68a,#fbbf24)">🏥</div>
+          <div class="info">
+            <div class="title">大病儿童医疗救助</div>
+            <div class="meta">已筹 ¥42,000 · 目标 ¥80,000</div>
+            <div class="mc-progress"><div class="fill" style="width:52%"></div></div>
+            <div class="meta" style="margin-top:2px">剩余 15 天 · 890 人捐款</div>
+          </div>
+        </div>
+        <div class="mc-card">
+          <div class="thumb" style="background:linear-gradient(135deg,#bfdbfe,#93c5fd)">🌾</div>
+          <div class="info">
+            <div class="title">乡村振兴帮扶计划</div>
+            <div class="meta">已筹 ¥120,000 · 目标 ¥200,000</div>
+            <div class="mc-progress"><div class="fill" style="width:60%"></div></div>
+            <div class="meta" style="margin-top:2px">剩余 40 天 · 2,100 人捐款</div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <div class="tab active"><span class="t-icon">🏠</span>首页</div>
+        <div class="tab"><span class="t-icon">🔍</span>发现</div>
+        <div class="tab"><span class="t-icon">💚</span>我的</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- A2: 项目详情 -->
+<div class="feature-block">
+  <div class="desc">
+    <h4>📄 项目详情页 <span class="badge badge-core">核心</span></h4>
+    <p>
+      点击项目后展示完整信息：<br>
+      ① 顶部大图/轮播图<br>
+      ② 项目背景故事<br>
+      ③ 受助群体说明<br>
+      ④ <strong>预算明细表</strong>（每笔钱花在哪）<br>
+      ⑤ 执行计划时间线<br>
+      ⑥ 已捐款人列表（可匿名）<br>
+      ⑦ 底部固定捐款按钮<br>
+    </p>
+    <div class="tip-box">💡 <strong>为什么捐款人需要看预算表？</strong><br>透明预算是捐款信任的基础。列出"助学款XX元、餐费XX元、管理费XX元"，让人放心捐。</div>
+  </div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="status-bar"><span>9:42</span><span>▮▮▮▮ ▮▮ Wi-Fi</span></div>
+      <div class="nav-bar"><span class="back-btn">← 返回</span>项目详情</div>
+      <div class="content">
+        <div style="height:100px;background:linear-gradient(135deg,#a7f3d0,#34d399);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:10px">📚</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px">山区儿童助学计划</div>
+        <div class="mc-progress" style="margin-bottom:4px"><div class="fill" style="width:68%"></div></div>
+        <div style="font-size:10px;color:var(--gray-400);margin-bottom:10px">
+          已筹 <b style="color:var(--orange)">¥68,500</b> · 目标 ¥100,000 · 剩余23天
+        </div>
+        <!-- 预算表 -->
+        <div style="font-size:11px;font-weight:600;margin-bottom:4px">📊 预算明细</div>
+        <table class="mc-table">
+          <tr><th>项目</th><th>金额</th></tr>
+          <tr><td>助学款（100人×800）</td><td>80,000</td></tr>
+          <tr><td>学习用品</td><td>12,000</td></tr>
+          <tr><td>执行与管理</td><td>8,000</td></tr>
+        </table>
+        <!-- 执行计划 -->
+        <div style="font-size:11px;font-weight:600;margin-bottom:4px;margin-top:8px">📅 执行计划</div>
+        <div style="font-size:10px;color:var(--gray-600);line-height:1.6">
+          <span style="color:var(--green)">●</span> 2026.07 走访确认学生名单<br>
+          <span style="color:#d1d5db">○</span> 2026.08 采购物资<br>
+          <span style="color:#d1d5db">○</span> 2026.09 开学发放助学款
+        </div>
+      </div>
+      <div style="padding:8px 12px;border-top:1px solid #e5e7eb;background:#fff">
+        <span class="mc-btn mc-btn-primary mc-btn-block">💝 我要捐款</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- A3: 捐款流程 -->
+<div class="feature-block">
+  <div class="desc">
+    <h4>💳 捐款流程（含配捐展示）<span class="badge badge-core">核心</span></h4>
+    <p>
+      选择金额 → 填写留言 → 匿名开关 → 微信支付 → 捐款成功。<br>
+      <strong>配捐效果</strong>：如有企业配捐，确认页会显示"您捐50 + XX企业配捐50 = 项目收到100"，极大提升捐款意愿。
+    </p>
+  </div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="status-bar"><span>9:43</span><span>▮▮▮▮ ▮▮ Wi-Fi</span></div>
+      <div class="nav-bar"><span class="back-btn">← 返回</span>确认捐款</div>
+      <div class="content">
+        <div style="text-align:center;margin-bottom:12px">
+          <div style="font-size:11px;color:var(--gray-400)">捐款项目</div>
+          <div style="font-size:14px;font-weight:600">山区儿童助学计划</div>
+        </div>
+
+        <!-- 金额选择 -->
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+          <span style="padding:8px 16px;border-radius:8px;font-size:13px;background:var(--green-light);color:var(--green);font-weight:600">¥10</span>
+          <span style="padding:8px 16px;border-radius:8px;font-size:13px;border:1px solid #e5e7eb">¥50</span>
+          <span style="padding:8px 16px;border-radius:8px;font-size:13px;border:1px solid #e5e7eb;background:#fff3e0;border-color:#fbbf24">¥100</span>
+          <span style="padding:8px 16px;border-radius:8px;font-size:13px;border:1px solid #e5e7eb">自定义</span>
+        </div>
+
+        <!-- 配捐提示 -->
+        <div class="mc-match-banner">
+          🏢 华信集团 1:1 配捐进行中<br>
+          您捐 ¥100 · 企业配 ¥100 · <b>项目收到 ¥200</b>
+        </div>
+
+        <input class="mc-input" placeholder="留言（选填）：孩子们加油！">
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gray-400);margin-bottom:10px">
+          <span style="width:32px;height:18px;background:#d1d5db;border-radius:9px;display:inline-block"></span> 匿名捐款
+        </div>
+      </div>
+      <div style="padding:8px 12px;border-top:1px solid #e5e7eb;background:#fff">
+        <span class="mc-btn mc-btn-primary mc-btn-block">💳 微信支付 ¥100</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- A4: 证书 -->
+<div class="feature-block">
+  <div class="desc">
+    <h4>🎖️ 电子捐赠证书 <span class="badge badge-core">核心</span></h4>
+    <p>
+      捐款成功后自动生成证书，显示捐款编号、金额、项目名称、日期。<br>
+      支持<strong>保存图片</strong>到相册、<strong>分享到朋友圈</strong>或微信群。<br>
+      证书是最强的传播载体——捐款人分享证书 = 免费帮项目扩散。
+    </p>
+  </div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="status-bar"><span>9:43</span><span>▮▮▮▮ ▮▮ Wi-Fi</span></div>
+      <div class="nav-bar">🎉 捐赠成功</div>
+      <div class="content">
+        <div class="mc-cert">
+          <div class="cert-title">⭐ 捐 赠 证 书 ⭐</div>
+          <div style="font-size:10px;color:var(--gray-400);margin-bottom:8px">DONATION CERTIFICATE</div>
+          <div class="cert-amount">¥100</div>
+          <div style="font-size:11px;color:var(--gray-600);margin:6px 0">（含华信集团配捐 ¥100）</div>
+          <div class="cert-detail">
+            捐赠项目：山区儿童助学计划<br>
+            捐款编号：D2026070100123<br>
+            捐赠日期：2026年7月1日<br>
+            捐赠人：李*明
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <span class="mc-btn mc-btn-outline" style="flex:1">💾 保存图片</span>
+          <span class="mc-btn mc-btn-primary" style="flex:1">💬 分享好友</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- A5: 反馈闭环 -->
+<div class="feature-block">
+  <div class="desc">
+    <h4>🔔 捐款反馈闭环 <span class="badge badge-adv">进阶</span></h4>
+    <p>
+      捐款后不是"捐完就完了"。当项目资金实际帮扶了受助人，系统会通过<strong>微信服务通知</strong>推送给捐款人：<br>
+      "您于7月1日捐赠的助学项目，已帮助云南昭通3名初中生完成本学期学业"<br>
+      <strong>效果</strong>：让捐款人确切知道自己的钱用在了哪里，大幅提高复捐率。
+    </p>
+  </div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="status-bar"><span>9:45</span><span>▮▮▮▮ ▮▮ Wi-Fi</span></div>
+      <div class="nav-bar">微信服务通知</div>
+      <div class="content">
+        <div style="background:#fff;border-radius:10px;padding:12px;margin-bottom:8px">
+          <div style="font-size:12px;font-weight:600;margin-bottom:4px">📬 项目进展反馈</div>
+          <div style="font-size:11px;color:var(--gray-600);line-height:1.7">
+            您于7月1日捐赠的「山区儿童助学计划」已有新进展：<br><br>
+            ✅ 已帮助云南昭通市 <b>3名</b>初中生完成本学期学业<br>
+            ✅ 发放助学款 <b>2,400元</b><br>
+            ✅ 发放学习用品 <b>3套</b><br><br>
+            <span style="color:var(--gray-400)">点击查看详情 →</span>
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:10px;padding:12px">
+          <div style="font-size:12px;font-weight:600;margin-bottom:4px">📬 项目完成通知</div>
+          <div style="font-size:11px;color:var(--gray-600);line-height:1.7">
+            「山区儿童助学计划」已圆满完成！<br>
+            共筹款 <b>100,000元</b>，帮助 <b>100名学生</b><br>
+            <span style="color:var(--gray-400)">查看结项报告 →</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- A6: 场景化入口 -->
+<div class="feature-block">
+  <div class="desc">
+    <h4>📎 场景化捐款入口 <span class="badge badge-adv">进阶</span></h4>
+    <p>
+      不只在小程序里等捐款人上门。<br>
+      ① <strong>合作商家嵌入</strong>：在超市/餐厅扫码支付时弹出"捐1元"选项（参考微信支付爱心餐）<br>
+      ② <strong>公众号文章联动</strong>：文章内嵌捐款按钮，读者读完故事一键跳转捐款<br>
+      ③ <strong>海报二维码</strong>：生成带项目ID的小程序码，印在活动海报和宣传单上
+    </p>
+  </div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="status-bar"><span>9:46</span><span>▮▮▮▮ ▮▮ Wi-Fi</span></div>
+      <div class="nav-bar">🍔 麦当劳 · 点餐</div>
+      <div class="content">
+        <div style="background:#fff;border-radius:10px;padding:12px;margin-bottom:8px">
+          <div style="font-size:12px;font-weight:600">您的订单</div>
+          <div style="font-size:11px;color:var(--gray-600)">麦辣鸡腿堡套餐 · ¥25.00</div>
+        </div>
+        <div style="background:#fffbe6;border-radius:10px;padding:12px;text-align:center;border:1px solid #fbbf24">
+          <div style="font-size:12px;font-weight:600;color:#92400e;margin-bottom:4px">💛 加1元，请环卫工人吃顿饭</div>
+          <div style="font-size:10px;color:var(--gray-400);margin-bottom:6px">微信支付爱心餐公益计划</div>
+          <div style="display:flex;gap:8px;justify-content:center">
+            <span class="mc-btn mc-btn-outline" style="font-size:11px">不了，谢谢</span>
+            <span class="mc-btn mc-btn-primary" style="font-size:11px">好的，加1元</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /捐款渠道 -->
+
+<!-- ==================== 模块B：受助人管理 ==================== -->
+<div class="mod-section" id="beneficiary">
+<div class="mod-title"><span class="num">B</span> 受助人管理</div>
+<div class="mod-subtitle">一线人员现场走访时录入受助人信息，多级审核，全程可追溯</div>
+
+<div class="feature-block">
+  <div class="desc">
+    <h4>📝 受助人信息录入 <span class="badge badge-core">核心</span></h4>
+    <p>
+      一线人员在现场打开小程序，填写受助人基本信息（姓名、性别、年龄、身份证号<strong>自动脱敏</strong>、家庭情况），
+      选择困难类型，拍照上传证明材料。<br>
+      <strong>设计要点</strong>：表单大字、少字段、支持离线暂存（山区信号不好时也能填）。
+    </p>
+  </div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="status-bar"><span>10:15</span><span>▮▮ ▮▮ 4G</span></div>
+      <div class="nav-bar"><span class="back-btn">← 返回</span>录入受助人</div>
+      <div class="content">
+        <input class="mc-input" placeholder="姓名 *">
+        <div style="display:flex;gap:8px;margin-bottom:6px">
+          <span style="padding:6px 20px;border-radius:8px;font-size:11px;background:var(--green-light);color:var(--green);font-weight:600">男</span>
+          <span style="padding:6px 20px;border-radius:8px;font-size:11px;border:1px solid #e5e7eb">女</span>
+        </div>
+        <input class="mc-input" placeholder="出生日期 *">
+        <input class="mc-input" placeholder="身份证号（系统自动脱敏）*">
+        <input class="mc-input" placeholder="联系电话">
+        <input class="mc-input" placeholder="家庭住址">
+        <div style="display:flex;gap:8px;margin-bottom:6px">
+          <input class="mc-input" placeholder="家庭人口" style="flex:1">
+          <input class="mc-input" placeholder="年收入(元)" style="flex:1">
+        </div>
+        <div style="font-size:11px;font-weight:600;margin-bottom:4px">困难类型 *</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">
+          <span class="mc-tag" style="background:var(--green-light);color:var(--green);font-weight:600">因病</span>
+          <span class="mc-tag">因残</span><span class="mc-tag">因学</span><span class="mc-tag">孤寡</span><span class="mc-tag">受灾</span>
+        </div>
+        <div class="mc-upload">📷 点击拍照上传证明材料<br><span style="font-size:10px">低保证·诊断书·残疾证·村委会证明</span></div>
+        <span class="mc-btn mc-btn-primary mc-btn-block">提交审核</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="feature-block">
+  <div class="desc">
+    <h4>✅ 多级审核流程 <span class="badge badge-core">核心</span></h4>
+    <p>
+      支持配置审核层级（1-3级），每级审核人看到待办列表、可查看详情、通过或退回（必须附原因）。<br>
+      <strong>退回带原因</strong>：录入员能清楚知道哪里不对，修改后重新提交。
+    </p>
+  </div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="status-bar"><span>14:20</span><span>▮▮▮▮ ▮▮ Wi-Fi</span></div>
+      <div class="nav-bar">📋 审核待办 (3)</div>
+      <div class="content">
+        <div class="mc-card">
+          <div style="width:6px;height:40px;background:#f59e0b;border-radius:3px;flex-shrink:0"></div>
+          <div class="info">
+            <div class="title">张建国 · 因病 · 紧急</div>
+            <div class="meta">录入员：李娟 · 2026-07-01</div>
+            <div class="meta" style="color:#f59e0b">待初审</div>
+          </div>
+        </div>
+        <div class="mc-card">
+          <div style="width:6px;height:40px;background:#ef4444;border-radius:3px;flex-shrink:0"></div>
+          <div class="info">
+            <div class="title">王秀英 · 孤寡 · 紧急</div>
+            <div class="meta">录入员：张伟 · 2026-06-30</div>
+            <div class="meta" style="color:#ef4444">初审退回（材料不全）</div>
+          </div>
+        </div>
+        <div class="mc-card">
+          <div style="width:6px;height:40px;background:#d1d5db;border-radius:3px;flex-shrink:0"></div>
+          <div class="info">
+            <div class="title">李大军 · 因残 · 一般</div>
+            <div class="meta">录入员：赵强 · 2026-06-28</div>
+            <div class="meta">已通过 · 待终审</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /受助人管理 -->
+
+<!-- ==================== 模块C：项目管理 ==================== -->
+<div class="mod-section" id="project">
+<div class="mod-title"><span class="num">C</span> 项目管理</div>
+<div class="mod-subtitle">立项→筹款→执行→结项，全生命周期有据可查</div>
+
+<div class="feature-block">
+  <div class="desc">
+    <h4>📊 管理后台仪表盘 <span class="badge badge-core">核心</span></h4>
+    <p>
+      机构管理人员在一个页面看到全局数据：<br>
+      总筹款额、总捐款人次、正在进行的项目数、累计受助人数。<br>
+      每个项目单独点进去有详细数据：日捐款趋势、金额分布、捐款人来源渠道。
+    </p>
+  </div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="status-bar"><span>16:00</span><span>▮▮▮▮ ▮▮ Wi-Fi</span></div>
+      <div class="nav-bar">📊 管理后台</div>
+      <div class="content">
+        <div class="mc-stat-row">
+          <div class="mc-stat-box"><div class="val">¥23.5万</div><div class="lbl">总筹款额</div></div>
+          <div class="mc-stat-box"><div class="val">4,580</div><div class="lbl">捐款人次</div></div>
+        </div>
+        <div class="mc-stat-row">
+          <div class="mc-stat-box"><div class="val">3</div><div class="lbl">进行中项目</div></div>
+          <div class="mc-stat-box"><div class="val">126</div><div class="lbl">受助人数</div></div>
+        </div>
+        <div style="font-size:12px;font-weight:600;margin-bottom:6px">📈 各项目概览</div>
+        <div class="mc-card">
+          <div class="info">
+            <div class="title">山区儿童助学计划</div>
+            <div class="meta">68.5% · 23天剩余 · 状态：筹款中</div>
+            <div class="mc-progress" style="margin-top:3px"><div class="fill" style="width:68%;background:#f59e0b"></div></div>
+          </div>
+        </div>
+        <div class="mc-card">
+          <div class="info">
+            <div class="title">大病儿童医疗救助</div>
+            <div class="meta">52.5% · 15天剩余 · 状态：筹款中</div>
+            <div class="mc-progress" style="margin-top:3px"><div class="fill" style="width:52%;background:#f59e0b"></div></div>
+          </div>
+        </div>
+        <div class="mc-card">
+          <div class="info">
+            <div class="title">2025暖冬行动</div>
+            <div class="meta">100% · 状态：已完成 ✅</div>
+            <div class="mc-progress" style="margin-top:3px"><div class="fill" style="width:100%;background:var(--green)"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="feature-block">
+  <div class="desc">
+    <h4>💰 资金管理 <span class="badge badge-core">核心</span></h4>
+    <p>
+      每笔支出记录用途、金额、凭证（拍照上传），资金流向完全透明。<br>
+      可用余额 = 已筹总额 - 已支出总额，实时计算。<br>
+      <strong>审计要求</strong>：所有记录不可删除（只能红冲），确保资金可追溯。
+    </p>
+  </div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="status-bar"><span>17:00</span><span>▮▮▮▮ ▮▮ Wi-Fi</span></div>
+      <div class="nav-bar"><span class="back-btn">← 返回</span>资金明细</div>
+      <div class="content">
+        <div style="text-align:center;margin-bottom:10px">
+          <div style="font-size:10px;color:var(--gray-400)">可用余额</div>
+          <div style="font-size:24px;font-weight:700;color:var(--green)">¥31,500</div>
+        </div>
+        <table class="mc-table">
+          <tr><th>日期</th><th>类型</th><th>金额</th><th>余额</th></tr>
+          <tr><td>07-01</td><td style="color:var(--green)">捐款</td><td style="color:var(--green)">+5,000</td><td>36,500</td></tr>
+          <tr><td>06-28</td><td style="color:#ef4444">支出</td><td style="color:#ef4444">-3,500</td><td>31,500</td></tr>
+          <tr><td>06-25</td><td style="color:var(--green)">捐款</td><td style="color:var(--green)">+2,000</td><td>35,000</td></tr>
+          <tr><td>06-20</td><td style="color:#ef4444">支出</td><td style="color:#ef4444">-800</td><td>33,000</td></tr>
+        </table>
+        <span class="mc-btn mc-btn-outline mc-btn-block" style="margin-top:8px">+ 记录支出</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /项目管理 -->
+
+<!-- ==================== 模块D：进阶功能 ==================== -->
+<div class="mod-section" id="advanced">
+<div class="mod-title"><span class="num">D</span> 进阶可选功能</div>
+<div class="mod-subtitle">以下功能可根据机构实际情况选择，不影响核心流程</div>
+
+<div class="feature-block">
+  <div class="desc">
+    <h4>💚 尊严支付 <span class="badge badge-opt">可选</span></h4>
+    <p>
+      不直接免除全部费用，让受助人支付<strong>象征性金额</strong>（如1分钱/1元）。<br>
+      参考微信支付爱心餐：环卫工人付<strong>1分钱</strong>吃一份正餐。<br>
+      <strong>核心理念</strong>：让受助人感觉是"低价购买"而非"被施舍"，保护自尊心。<br>
+      <strong>实现方式</strong>：每个项目创建时可单独选择是否开启。
+    </p>
+  </div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="status-bar"><span>12:00</span><span>▮▮▮▮ ▮▮ Wi-Fi</span></div>
+      <div class="nav-bar">🍱 领取爱心餐</div>
+      <div class="content">
+        <div style="text-align:center;padding:20px 0">
+          <div style="font-size:40px;margin-bottom:10px">🍱</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:4px">爱心餐（红烧牛肉面套餐）</div>
+          <div style="font-size:11px;color:var(--gray-400);margin-bottom:16px">原价 ¥28.00</div>
+          <div style="background:#fef3c7;border-radius:12px;padding:16px;margin-bottom:12px">
+            <div style="font-size:11px;color:#92400e">仅需支付</div>
+            <div style="font-size:32px;font-weight:800;color:#b45309">¥0.01</div>
+          </div>
+          <span class="mc-btn mc-btn-primary mc-btn-block">微信支付 ¥0.01</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="feature-block">
+  <div class="desc">
+    <h4>🏢 企业配捐 <span class="badge badge-opt">可选</span></h4>
+    <p>
+      合作企业出资建立配捐池。用户捐1元，企业配1元，项目收到2元。<br>
+      项目详情页显示"XX企业配捐进行中，余额还剩68%"，捐款确认页显示放大后的效果。<br>
+      <strong>对企业价值</strong>：品牌曝光 + ESG/CSR 报告素材 + 员工参与感<br>
+      <strong>对机构价值</strong>：捐款额放大，用户捐赠意愿更强<br>
+      <strong>实现方式</strong>：每个项目可单独绑定配捐池，配完即止。
+    </p>
+  </div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="status-bar"><span>10:00</span><span>▮▮▮▮ ▮▮ Wi-Fi</span></div>
+      <div class="nav-bar">❤️ 公益项目</div>
+      <div class="content">
+        <!-- 配捐进度条 -->
+        <div class="mc-match-banner" style="text-align:left;margin-bottom:8px">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+            <span style="width:20px;height:20px;background:#fbbf24;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px">🏢</span>
+            <span style="font-size:11px">华信集团 1:1 配捐进行中</span>
+          </div>
+          <div class="mc-progress" style="background:#fde68a"><div class="fill" style="width:68%;background:#f59e0b"></div></div>
+          <div style="font-size:9px;color:#92400e;margin-top:2px">配捐余额 ¥34,000（剩余68%）· 已有2,350人获得配捐</div>
+        </div>
+        <!-- 项目卡片 -->
+        <div class="mc-card">
+          <div class="thumb">📚</div>
+          <div class="info">
+            <div class="title">山区儿童助学计划</div>
+            <div class="meta">已筹 ¥68,500 · 目标 ¥100,000</div>
+            <div class="mc-progress"><div class="fill" style="width:68%"></div></div>
+            <div class="meta" style="margin-top:2px;color:#b45309">🏢 华信集团配捐中 · 含配捐 ¥12,500</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="feature-block">
+  <div class="desc">
+    <h4>🤝 合作机构管理 <span class="badge badge-opt">可选</span></h4>
+    <p>
+      除了机构自己的人员，还可以开放给<strong>外部合作单位</strong>：合作的社区、村委会、其他公益组织的一线人员。<br>
+      <strong>数据隔离</strong>：每个合作机构的人员只能查看和管理自己录入的受助人数据，保护隐私。
+    </p>
+  </div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="status-bar"><span>11:00</span><span>▮▮▮▮ ▮▮ Wi-Fi</span></div>
+      <div class="nav-bar">👥 合作机构管理</div>
+      <div class="content">
+        <div class="mc-card">
+          <div class="info">
+            <div class="title">🏘️ 滇滩镇村委会</div>
+            <div class="meta">人员：3人 · 录入：45条 · 地区：云南腾冲</div>
+          </div>
+        </div>
+        <div class="mc-card">
+          <div class="info">
+            <div class="title">🏥 爱心志愿者协会</div>
+            <div class="meta">人员：12人 · 录入：128条 · 地区：四川凉山</div>
+          </div>
+        </div>
+        <div class="mc-card">
+          <div class="info">
+            <div class="title">⛪ 阳光社工服务中心</div>
+            <div class="meta">人员：5人 · 录入：67条 · 地区：贵州毕节</div>
+          </div>
+        </div>
+        <span class="mc-btn mc-btn-outline mc-btn-block" style="margin-top:4px">+ 添加合作机构</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /进阶功能 -->
+
+<!-- ===== CTA ===== -->
+<div style="text-align:center;padding:40px 0 20px">
+  <p style="font-size:14px;color:var(--gray-400);margin-bottom:16px">看完功能介绍，去勾选贵机构需要的功能吧</p>
+  <a href="survey.html" style="display:inline-block;padding:14px 48px;background:var(--orange);color:#fff;border-radius:50px;font-size:16px;font-weight:600;text-decoration:none;box-shadow:0 4px 14px rgba(232,115,74,.35)">📋 填写需求问卷 →</a>
+</div>
+
+</div><!-- /.container -->
+</body>
+</html>
