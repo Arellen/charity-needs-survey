@@ -353,10 +353,11 @@
 <div class="submit-area">
   <p>📌 提交后我们将通过飞书收到通知，2 个工作日内与您联系</p>
   <button type="submit" class="btn-submit">📤 提交需求</button>
-  <div class="result-box" id="resultBox"></div>
 </div>
 
 </form>
+
+<div class="result-box" id="resultBox"></div>
 </div>
 
 <script>
@@ -526,9 +527,8 @@
       html += '<p style="font-size:11px;color:#a16207">如有疑问，请联系对接人或回复飞书消息</p>';
       html += '</div>';
 
-      // 隐藏表单区域，显示确认页
-      var sections = document.querySelectorAll('.form-section, .submit-area');
-      for(var s = 0; s < sections.length; s++) sections[s].style.display = 'none';
+      // 隐藏表单，显示确认页（resultBox 已在 form 外）
+      document.getElementById('surveyForm').style.display = 'none';
       document.querySelector('.progress-bar-wrap').style.display = 'none';
       document.querySelector('.intro').innerHTML = '<h2>✅ 需求已提交</h2>';
       box.classList.add('show');
