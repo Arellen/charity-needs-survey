@@ -436,12 +436,12 @@
       if(val && val !== '(未选择)') lines.push('**' + label + '**：' + val);
     });
 
-    // 计算飞书签名
+    // 计算飞书签名（key=timestamp+\n+secret, data=空字符串）
     var SECRET = 'RbVRjrUpzmvOI63SL1RQSc';
     var ts = Math.floor(Date.now() / 1000).toString();
     var enc = new TextEncoder();
-    var key = await crypto.subtle.importKey('raw', enc.encode(SECRET), {name:'HMAC', hash:'SHA-256'}, false, ['sign']);
-    var sigBuf = await crypto.subtle.sign('HMAC', key, enc.encode(ts + '\n' + SECRET));
+    var key = await crypto.subtle.importKey('raw', enc.encode(ts + '\n' + SECRET), {name:'HMAC', hash:'SHA-256'}, false, ['sign']);
+    var sigBuf = await crypto.subtle.sign('HMAC', key, enc.encode(''));
     // 安全的 ArrayBuffer → Base64（避免 apply 调用栈溢出）
     var bytes = new Uint8Array(sigBuf);
     var binary = '';
