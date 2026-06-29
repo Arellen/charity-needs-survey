@@ -91,8 +91,8 @@
 <div class="container">
 
 <div class="intro">
-  <h2>请逐项勾选贵机构的需求</h2>
-  <p>预计 10 分钟完成 · 提交后飞书自动通知我们</p>
+  <h2 id="surveyTitle">请逐项勾选贵机构的需求</h2>
+  <p id="surveyMeta">预计 10 分钟完成 · 提交后飞书自动通知我们</p>
 </div>
 
 <form id="surveyForm">
@@ -362,6 +362,17 @@
 
 <script>
 (function(){
+  // 从 URL 读取项目和版本参数
+  var params = new URLSearchParams(window.location.search);
+  var project = params.get('project') || 'charity';
+  var ver = params.get('ver') || 'v1';
+
+  // 更新页面标题
+  var projectNames = { charity: '公益小程序' };
+  var pname = projectNames[project] || project;
+  document.getElementById('surveyTitle').textContent = pname + ' · 需求确认问卷';
+  document.getElementById('surveyMeta').textContent = '版本 ' + ver + ' · 预计 10 分钟完成 · 提交后飞书自动通知';
+
   var form = document.getElementById('surveyForm');
   var allGroups = form.querySelectorAll('.form-group[data-q]');
   var totalQs = allGroups.length;
@@ -441,11 +452,14 @@
     var text = lines.join('\n');
     var box = document.getElementById('resultBox');
 
+    // 加项目信息到 payload
+    var payload = { text: text, project: project, ver: ver };
+
     try {
       var resp = await fetch('https://1448396925-j94riyg7qv.ap-guangzhou.tencentscf.com', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ text: text })
+        body: JSON.stringify(payload)
       });
       var raw = await resp.text();
       var data = JSON.parse(raw);
