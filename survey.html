@@ -15,7 +15,6 @@
     font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
     background:var(--gray-50);color:var(--gray-800);line-height:1.7;
   }
-
   .topbar{
     position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid var(--gray-200);
     padding:14px 16px;display:flex;align-items:center;gap:12px;
@@ -23,9 +22,7 @@
   .topbar .back{font-size:14px;color:var(--gray-600);text-decoration:none}
   .topbar .back:hover{color:var(--green)}
   .topbar h1{font-size:17px;font-weight:700}
-
   .container{max-width:760px;margin:0 auto;padding:16px 16px 60px}
-
   .progress-bar-wrap{
     position:sticky;top:48px;z-index:9;background:#fff;padding:8px 16px;
     box-shadow:0 1px 3px rgba(0,0,0,.04);border-bottom:1px solid var(--gray-200);
@@ -34,22 +31,18 @@
   .progress-bar{flex:1;height:4px;background:var(--gray-200);border-radius:2px;overflow:hidden}
   .progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s;width:0}
   .progress-text{font-size:12px;color:var(--gray-400);white-space:nowrap}
-
   .intro{text-align:center;padding:20px 0 8px}
   .intro h2{font-size:20px;color:var(--green);margin-bottom:4px}
   .intro p{font-size:13px;color:var(--gray-400)}
-
   .form-section{
     background:#fff;border-radius:var(--radius);padding:22px 22px 14px;
     margin-bottom:16px;box-shadow:var(--shadow);border:1px solid var(--gray-200);
   }
   .form-section h3{font-size:16px;margin-bottom:14px;color:var(--gray-800)}
-
   .form-group{margin-bottom:18px}
   .form-group label.q{display:block;font-size:14px;font-weight:600;color:var(--gray-800);margin-bottom:8px}
   .form-group label.q .required{color:#ef4444;margin-left:2px}
   .form-group label.q .hint{font-weight:400;font-size:12px;color:var(--gray-400)}
-
   .options{display:flex;flex-direction:column;gap:6px}
   .options label{
     display:flex;align-items:flex-start;gap:10px;padding:10px 14px;
@@ -59,7 +52,6 @@
   .options label:hover{background:#f9fafb;border-color:var(--green)}
   .options input[type="radio"],.options input[type="checkbox"]{margin-top:2px;accent-color:var(--green);flex-shrink:0;width:16px;height:16px}
   .options label.selected{background:var(--green-light);border-color:var(--green)}
-
   input[type="text"],textarea,select{
     width:100%;padding:10px 14px;border:1px solid var(--gray-200);border-radius:8px;
     font-size:14px;font-family:inherit;transition:border-color .15s;background:#fff;
@@ -67,7 +59,6 @@
   input[type="text"]:focus,textarea:focus,select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px var(--green-light)}
   textarea{resize:vertical;min-height:80px}
   .inline-input{display:inline-block;width:120px;margin:0 4px;padding:6px 10px;border:1px solid var(--gray-200);border-radius:6px;font-size:14px}
-
   .submit-area{text-align:center;margin-top:24px;padding:24px;background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--gray-200)}
   .submit-area p{font-size:13px;color:var(--gray-400);margin-bottom:14px}
   .btn-submit{
@@ -77,7 +68,6 @@
   }
   .btn-submit:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(232,115,74,.45)}
   .btn-submit:disabled{opacity:.5;cursor:not-allowed;transform:none}
-
   .result-box{
     display:none;margin-top:16px;padding:16px;background:#f0fdf4;border-radius:var(--radius);
     border:1px solid #86efac;text-align:left;font-size:12px;white-space:pre-wrap;
@@ -102,7 +92,7 @@
 
 <div class="intro">
   <h2>请逐项勾选贵机构的需求</h2>
-  <p>预计 10 分钟完成 · 提交后我们将据此出具方案</p>
+  <p>预计 10 分钟完成 · 提交后飞书自动通知我们</p>
 </div>
 
 <form id="surveyForm">
@@ -110,88 +100,86 @@
 <!-- 第一部分：基本信息 -->
 <div class="form-section">
   <h3>📋 第一部分：基本信息</h3>
-
   <div class="form-group" data-q="1">
     <label class="q">Q1. 机构名称<span class="required">*</span></label>
-    <input type="text" name="q1_orgName" placeholder="请输入机构全称" required>
+    <input type="text" name="org_name" placeholder="请输入机构全称" required>
   </div>
   <div class="form-group" data-q="2">
     <label class="q">Q2. 填表人姓名<span class="required">*</span></label>
-    <input type="text" name="q2_name" placeholder="您的姓名" required>
+    <input type="text" name="contact_name" placeholder="您的姓名" required>
   </div>
   <div class="form-group" data-q="3">
     <label class="q">Q3. 联系方式<span class="required">*</span></label>
-    <input type="text" name="q3_contact" placeholder="手机号 / 微信号" required>
+    <input type="text" name="contact_info" placeholder="手机号 / 微信号" required>
   </div>
   <div class="form-group" data-q="4">
     <label class="q">Q4. 机构目前是否有在使用的小程序/公众号/网站？<span class="required">*</span></label>
     <div class="options">
-      <label><input type="radio" name="q4_existing" value="公众号"> 有公众号</label>
-      <label><input type="radio" name="q4_existing" value="小程序"> 有小程序</label>
-      <label><input type="radio" name="q4_existing" value="网站"> 有网站</label>
-      <label><input type="radio" name="q4_existing" value="多个"> 有多个（公众号+小程序等）</label>
-      <label><input type="radio" name="q4_existing" value="都没有"> 都没有</label>
+      <label><input type="radio" name="has_platform" value="公众号"> 有公众号</label>
+      <label><input type="radio" name="has_platform" value="小程序"> 有小程序</label>
+      <label><input type="radio" name="has_platform" value="网站"> 有网站</label>
+      <label><input type="radio" name="has_platform" value="多个"> 有多个</label>
+      <label><input type="radio" name="has_platform" value="都没有"> 都没有</label>
     </div>
   </div>
   <div class="form-group" data-q="5">
-    <label class="q">Q5. 机构目前如何管理捐款和受助人信息？<span class="required">*</span><span class="hint">（多选）</span></label>
+    <label class="q">Q5. 当前如何管理捐款和受助人信息？<span class="required">*</span><span class="hint">（多选）</span></label>
     <div class="options">
-      <label><input type="checkbox" name="q5_mgmt" value="Excel"> Excel 表格</label>
-      <label><input type="checkbox" name="q5_mgmt" value="纸质"> 纸质档案</label>
-      <label><input type="checkbox" name="q5_mgmt" value="第三方系统"> 第三方系统</label>
-      <label><input type="checkbox" name="q5_mgmt" value="无系统"> 没有系统化管理</label>
+      <label><input type="checkbox" name="current_method" value="Excel"> Excel 表格</label>
+      <label><input type="checkbox" name="current_method" value="纸质"> 纸质档案</label>
+      <label><input type="checkbox" name="current_method" value="第三方系统"> 第三方系统</label>
+      <label><input type="checkbox" name="current_method" value="无系统"> 没有系统化管理</label>
     </div>
-    <input type="text" name="q5_systemDetail" placeholder="如选了"第三方系统"，请注明系统名称" style="margin-top:8px">
+    <input type="text" name="current_system_detail" placeholder="如选了第三方系统，请注明系统名称" style="margin-top:8px">
   </div>
 </div>
 
 <!-- 第二部分：捐款模块 -->
 <div class="form-section">
   <h3>💳 第二部分：捐款模块需求</h3>
-
   <div class="form-group" data-q="6">
     <label class="q">Q6. 需要哪些捐款相关功能？<span class="required">*</span><span class="hint">（多选）</span></label>
     <div class="options">
-      <label><input type="checkbox" name="q6_donate" value="项目展示首页"> 项目展示首页（分类筛选、进度条）</label>
-      <label><input type="checkbox" name="q6_donate" value="项目详情页"> 项目详情页（背景、预算、计划）</label>
-      <label><input type="checkbox" name="q6_donate" value="在线捐款"> 在线捐款（微信支付，固定档位+自定义金额）</label>
-      <label><input type="checkbox" name="q6_donate" value="电子证书"> 电子捐赠证书（可保存分享）</label>
-      <label><input type="checkbox" name="q6_donate" value="个人中心"> 捐款人个人中心（记录、累计、证书合集）</label>
-      <label><input type="checkbox" name="q6_donate" value="进展推送"> 项目进展推送（微信服务通知）</label>
-      <label><input type="checkbox" name="q6_donate" value="发票申请"> 捐赠发票申请</label>
-      <label><input type="checkbox" name="q6_donate" value="全都要"> ✅ 以上全部都需要</label>
+      <label><input type="checkbox" name="donate_features" value="项目展示首页"> 项目展示首页</label>
+      <label><input type="checkbox" name="donate_features" value="项目详情页"> 项目详情页（背景、预算、计划）</label>
+      <label><input type="checkbox" name="donate_features" value="在线捐款"> 在线捐款（微信支付）</label>
+      <label><input type="checkbox" name="donate_features" value="电子证书"> 电子捐赠证书</label>
+      <label><input type="checkbox" name="donate_features" value="个人中心"> 个人中心（记录、累计、证书）</label>
+      <label><input type="checkbox" name="donate_features" value="进展推送"> 项目进展推送</label>
+      <label><input type="checkbox" name="donate_features" value="发票申请"> 捐赠发票申请</label>
+      <label><input type="checkbox" name="donate_features" value="全都要"> ✅ 以上全部都需要</label>
     </div>
   </div>
   <div class="form-group" data-q="7">
-    <label class="q">Q7. 捐款金额档位如何设置？<span class="required">*</span></label>
+    <label class="q">Q7. 捐款档位设置？<span class="required">*</span></label>
     <div class="options">
-      <label><input type="radio" name="q7_tiers" value="3档"> 固定 3 档：<input class="inline-input" name="q7_3_1" placeholder="如10"> / <input class="inline-input" name="q7_3_2" placeholder="如50"> / <input class="inline-input" name="q7_3_3" placeholder="如100"> 元</label>
-      <label><input type="radio" name="q7_tiers" value="4档"> 固定 4 档：<input class="inline-input" name="q7_4_1" placeholder="10"> / <input class="inline-input" name="q7_4_2" placeholder="50"> / <input class="inline-input" name="q7_4_3" placeholder="100"> / <input class="inline-input" name="q7_4_4" placeholder="500"> 元</label>
-      <label><input type="radio" name="q7_tiers" value="自定义+固定"> 固定档位 + 支持自定义金额输入</label>
-      <label><input type="radio" name="q7_tiers" value="每项目单独"> 每个项目单独设置档位（更灵活）</label>
+      <label><input type="radio" name="donate_tiers" value="3档固定"> 3 档：<input class="inline-input" name="tiers_input" placeholder="10/50/100"> 元</label>
+      <label><input type="radio" name="donate_tiers" value="4档固定"> 4 档：<input class="inline-input" name="tiers_input" placeholder="10/50/100/500"> 元</label>
+      <label><input type="radio" name="donate_tiers" value="固定+自定义"> 固定档位 + 自定义金额</label>
+      <label><input type="radio" name="donate_tiers" value="每项目单独"> 每个项目单独设置</label>
     </div>
   </div>
   <div class="form-group" data-q="8">
-    <label class="q">Q8. 是否允许捐款人匿名？<span class="required">*</span></label>
+    <label class="q">Q8. 允许捐款人匿名？<span class="required">*</span></label>
     <div class="options">
-      <label><input type="radio" name="q8_anon" value="允许"> 允许（捐款时可选择匿名）</label>
-      <label><input type="radio" name="q8_anon" value="不允许"> 不允许，必须实名展示</label>
+      <label><input type="radio" name="allow_anonymous" value="允许"> 允许</label>
+      <label><input type="radio" name="allow_anonymous" value="不允许"> 不允许</label>
     </div>
   </div>
   <div class="form-group" data-q="9">
-    <label class="q">Q9. 是否需要场景化捐款入口？<span class="required">*</span><span class="hint">（嵌入合作商家、公众号文章等）</span></label>
+    <label class="q">Q9. 场景化捐款入口？<span class="required">*</span></label>
     <div class="options">
-      <label><input type="radio" name="q9_embed" value="P1要"> 第一期就要</label>
-      <label><input type="radio" name="q9_embed" value="P2再说"> 第一期不要，以后再说</label>
-      <label><input type="radio" name="q9_embed" value="不需要"> 不需要</label>
+      <label><input type="radio" name="scene_entry" value="P1要"> 第一期要</label>
+      <label><input type="radio" name="scene_entry" value="P2再说"> 以后再说</label>
+      <label><input type="radio" name="scene_entry" value="不需要"> 不需要</label>
     </div>
   </div>
   <div class="form-group" data-q="10">
-    <label class="q">Q10. 是否需要捐款反馈闭环？<span class="required">*</span><span class="hint">（捐款人能收到具体反馈：钱帮了谁）</span></label>
+    <label class="q">Q10. 捐款反馈闭环？<span class="required">*</span></label>
     <div class="options">
-      <label><input type="radio" name="q10_feedback" value="P1要"> 第一期就要</label>
-      <label><input type="radio" name="q10_feedback" value="P2再说"> 第一期不要，以后再说</label>
-      <label><input type="radio" name="q10_feedback" value="不需要"> 不需要</label>
+      <label><input type="radio" name="feedback_loop" value="P1要"> 第一期要</label>
+      <label><input type="radio" name="feedback_loop" value="P2再说"> 以后再说</label>
+      <label><input type="radio" name="feedback_loop" value="不需要"> 不需要</label>
     </div>
   </div>
 </div>
@@ -199,59 +187,58 @@
 <!-- 第三部分：受助人管理 -->
 <div class="form-section">
   <h3>👥 第三部分：受助人管理需求</h3>
-
   <div class="form-group" data-q="11">
-    <label class="q">Q11. 需要哪些受助人管理功能？<span class="required">*</span><span class="hint">（多选）</span></label>
+    <label class="q">Q11. 需要哪些受助人功能？<span class="required">*</span><span class="hint">（多选）</span></label>
     <div class="options">
-      <label><input type="checkbox" name="q11_ben" value="信息登记"> 受助人信息登记（姓名、性别、年龄、住址等）</label>
-      <label><input type="checkbox" name="q11_ben" value="困难描述+拍照"> 困难情况描述 + 证明材料拍照上传</label>
-      <label><input type="checkbox" name="q11_ben" value="需求评估"> 需求评估（资金/物资/服务、紧急程度）</label>
-      <label><input type="checkbox" name="q11_ben" value="多级审核"> 多级审核流程</label>
-      <label><input type="checkbox" name="q11_ben" value="帮扶记录"> 帮扶记录（每位受助人的历史明细）</label>
-      <label><input type="checkbox" name="q11_ben" value="搜索导出"> 搜索筛选 + Excel 导出</label>
-      <label><input type="checkbox" name="q11_ben" value="代操作"> 代操作功能（帮无手机的受助人登记）</label>
-      <label><input type="checkbox" name="q11_ben" value="全都要"> ✅ 以上全部都需要</label>
+      <label><input type="checkbox" name="ben_features" value="信息登记"> 受助人信息登记</label>
+      <label><input type="checkbox" name="ben_features" value="困难描述+拍照"> 困难描述 + 拍照上传</label>
+      <label><input type="checkbox" name="ben_features" value="需求评估"> 需求评估（紧急程度）</label>
+      <label><input type="checkbox" name="ben_features" value="多级审核"> 多级审核流程</label>
+      <label><input type="checkbox" name="ben_features" value="帮扶记录"> 帮扶记录</label>
+      <label><input type="checkbox" name="ben_features" value="搜索导出"> 搜索筛选 + Excel导出</label>
+      <label><input type="checkbox" name="ben_features" value="代操作"> 代操作（帮无手机者登记）</label>
+      <label><input type="checkbox" name="ben_features" value="全都要"> ✅ 以上全部都需要</label>
     </div>
   </div>
   <div class="form-group" data-q="12">
-    <label class="q">Q12. 受助人信息登记需要哪些字段？<span class="required">*</span><span class="hint">（多选）</span></label>
+    <label class="q">Q12. 登记需要哪些字段？<span class="required">*</span><span class="hint">（多选）</span></label>
     <div class="options">
-      <label><input type="checkbox" name="q12_fields" value="姓名"> 姓名</label>
-      <label><input type="checkbox" name="q12_fields" value="性别"> 性别</label>
-      <label><input type="checkbox" name="q12_fields" value="年龄"> 年龄/出生日期</label>
-      <label><input type="checkbox" name="q12_fields" value="身份证"> 身份证号（系统自动脱敏显示）</label>
-      <label><input type="checkbox" name="q12_fields" value="联系方式"> 联系方式</label>
-      <label><input type="checkbox" name="q12_fields" value="家庭住址"> 家庭住址</label>
-      <label><input type="checkbox" name="q12_fields" value="家庭人口"> 家庭人口</label>
-      <label><input type="checkbox" name="q12_fields" value="家庭年收入"> 家庭年收入</label>
+      <label><input type="checkbox" name="ben_fields" value="姓名"> 姓名</label>
+      <label><input type="checkbox" name="ben_fields" value="性别"> 性别</label>
+      <label><input type="checkbox" name="ben_fields" value="年龄"> 年龄/出生日期</label>
+      <label><input type="checkbox" name="ben_fields" value="身份证"> 身份证号（系统脱敏）</label>
+      <label><input type="checkbox" name="ben_fields" value="联系方式"> 联系方式</label>
+      <label><input type="checkbox" name="ben_fields" value="家庭住址"> 家庭住址</label>
+      <label><input type="checkbox" name="ben_fields" value="家庭人口"> 家庭人口</label>
+      <label><input type="checkbox" name="ben_fields" value="家庭年收入"> 家庭年收入</label>
     </div>
-    <input type="text" name="q12_otherFields" placeholder="其他需要的字段（请列举）" style="margin-top:8px">
+    <input type="text" name="ben_other_fields" placeholder="其他需要的字段" style="margin-top:8px">
   </div>
   <div class="form-group" data-q="13">
-    <label class="q">Q13. 需要上传的证明材料类型？<span class="required">*</span><span class="hint">（多选）</span></label>
+    <label class="q">Q13. 证明材料类型？<span class="required">*</span><span class="hint">（多选）</span></label>
     <div class="options">
-      <label><input type="checkbox" name="q13_docs" value="身份证照片"> 身份证照片</label>
-      <label><input type="checkbox" name="q13_docs" value="低保证"> 低保证</label>
-      <label><input type="checkbox" name="q13_docs" value="诊断书"> 诊断书/病历</label>
-      <label><input type="checkbox" name="q13_docs" value="残疾证"> 残疾证</label>
-      <label><input type="checkbox" name="q13_docs" value="村委会证明"> 村委会/社区证明</label>
-      <label><input type="checkbox" name="q13_docs" value="户口本"> 户口本</label>
+      <label><input type="checkbox" name="doc_types" value="身份证照片"> 身份证照片</label>
+      <label><input type="checkbox" name="doc_types" value="低保证"> 低保证</label>
+      <label><input type="checkbox" name="doc_types" value="诊断书"> 诊断书/病历</label>
+      <label><input type="checkbox" name="doc_types" value="残疾证"> 残疾证</label>
+      <label><input type="checkbox" name="doc_types" value="村委会证明"> 村委会/社区证明</label>
+      <label><input type="checkbox" name="doc_types" value="户口本"> 户口本</label>
     </div>
-    <input type="text" name="q13_otherDocs" placeholder="其他需要的证明材料（请列举）" style="margin-top:8px">
+    <input type="text" name="doc_other_types" placeholder="其他需要的证明材料" style="margin-top:8px">
   </div>
   <div class="form-group" data-q="14">
     <label class="q">Q14. 审核流程需要几级？<span class="required">*</span></label>
     <div class="options">
-      <label><input type="radio" name="q14_audit" value="一级"> 一级（录入即通过，事后抽查）</label>
-      <label><input type="radio" name="q14_audit" value="两级"> 两级（一线录入 → 负责人审核）</label>
-      <label><input type="radio" name="q14_audit" value="三级"> 三级（一线录入 → 项目负责人初审 → 机构负责人终审）</label>
+      <label><input type="radio" name="audit_levels" value="一级"> 一级（录入即通过）</label>
+      <label><input type="radio" name="audit_levels" value="两级"> 两级（录入 → 负责人审核）</label>
+      <label><input type="radio" name="audit_levels" value="三级"> 三级（录入 → 初审 → 终审）</label>
     </div>
   </div>
   <div class="form-group" data-q="15">
-    <label class="q">Q15. 是否允许外部合作机构的人员录入受助人？<span class="required">*</span></label>
+    <label class="q">Q15. 是否允许外部合作机构人员录入？<span class="required">*</span></label>
     <div class="options">
-      <label><input type="radio" name="q15_partner" value="需要"> 需要</label>
-      <label><input type="radio" name="q15_partner" value="不需要"> 不需要</label>
+      <label><input type="radio" name="partner_entry" value="需要"> 需要</label>
+      <label><input type="radio" name="partner_entry" value="不需要"> 不需要</label>
     </div>
   </div>
 </div>
@@ -259,25 +246,24 @@
 <!-- 第四部分：项目管理 -->
 <div class="form-section">
   <h3>📊 第四部分：项目管理需求</h3>
-
   <div class="form-group" data-q="16">
-    <label class="q">Q16. 需要哪些项目管理功能？<span class="required">*</span><span class="hint">（多选）</span></label>
+    <label class="q">Q16. 需要哪些管理功能？<span class="required">*</span><span class="hint">（多选）</span></label>
     <div class="options">
-      <label><input type="checkbox" name="q16_proj" value="项目立项"> 项目立项（填写信息+预算+计划）</label>
-      <label><input type="checkbox" name="q16_proj" value="立项审核"> 立项审核（内部审批后才上线）</label>
-      <label><input type="checkbox" name="q16_proj" value="筹款监控"> 筹款进度实时监控（数据看板）</label>
-      <label><input type="checkbox" name="q16_proj" value="资金管理"> 资金管理（每笔支出记录+凭证上传）</label>
-      <label><input type="checkbox" name="q16_proj" value="进展发布"> 项目进展发布（图文动态推送给捐款人）</label>
-      <label><input type="checkbox" name="q16_proj" value="项目结项"> 项目结项（提交报告+审核+公示）</label>
-      <label><input type="checkbox" name="q16_proj" value="全都要"> ✅ 以上全部都需要</label>
+      <label><input type="checkbox" name="proj_features" value="项目立项"> 项目立项</label>
+      <label><input type="checkbox" name="proj_features" value="立项审核"> 立项审核</label>
+      <label><input type="checkbox" name="proj_features" value="筹款监控"> 筹款进度监控</label>
+      <label><input type="checkbox" name="proj_features" value="资金管理"> 资金管理（支出+凭证）</label>
+      <label><input type="checkbox" name="proj_features" value="进展发布"> 进展发布</label>
+      <label><input type="checkbox" name="proj_features" value="项目结项"> 项目结项</label>
+      <label><input type="checkbox" name="proj_features" value="全都要"> ✅ 以上全部都需要</label>
     </div>
   </div>
   <div class="form-group" data-q="17">
-    <label class="q">Q17. 管理费如何设置？<span class="required">*</span><span class="hint">（从捐款中提取的运营费用比例）</span></label>
+    <label class="q">Q17. 管理费？<span class="required">*</span></label>
     <div class="options">
-      <label><input type="radio" name="q17_fee" value="不提取"> 不提取管理费</label>
-      <label><input type="radio" name="q17_fee" value="固定比例"> 固定比例，所有项目统一：<input class="inline-input" name="q17_feeRate" placeholder="如5"> %</label>
-      <label><input type="radio" name="q17_fee" value="每项目单设"> 每个项目单独设置比例</label>
+      <label><input type="radio" name="admin_fee" value="不提取"> 不提取</label>
+      <label><input type="radio" name="admin_fee" value="固定比例"> 固定：<input class="inline-input" name="fee_rate" placeholder="5"> %</label>
+      <label><input type="radio" name="admin_fee" value="每项目单设"> 每个项目单独设置</label>
     </div>
   </div>
 </div>
@@ -285,37 +271,36 @@
 <!-- 第五部分：进阶可选 -->
 <div class="form-section">
   <h3>⭐ 第五部分：进阶可选功能</h3>
-
   <div class="form-group" data-q="18">
-    <label class="q">Q18. 是否需要"尊严支付"功能？<span class="required">*</span><span class="hint">（受助人支付象征性金额如1分钱，保护自尊心。每个项目可单独开启。）</span></label>
+    <label class="q">Q18. 尊严支付？<span class="required">*</span><span class="hint">（受助人付1分钱，保护自尊）</span></label>
     <div class="options">
-      <label><input type="radio" name="q18_dignity" value="需要"> 需要，按项目可选开启</label>
-      <label><input type="radio" name="q18_dignity" value="不需要"> 不需要</label>
-      <label><input type="radio" name="q18_dignity" value="想了解更多"> 不确定，想进一步了解</label>
+      <label><input type="radio" name="dignity_payment" value="需要"> 需要</label>
+      <label><input type="radio" name="dignity_payment" value="不需要"> 不需要</label>
+      <label><input type="radio" name="dignity_payment" value="想了解更多"> 想进一步了解</label>
     </div>
   </div>
   <div class="form-group" data-q="19">
-    <label class="q">Q19. 是否需要"企业配捐"功能？<span class="required">*</span><span class="hint">（企业出资配捐池，用户捐1企业配1，每个项目可单独设置。）</span></label>
+    <label class="q">Q19. 企业配捐？<span class="required">*</span><span class="hint">（企业配捐池，1:1放大捐款）</span></label>
     <div class="options">
-      <label><input type="radio" name="q19_match" value="需要"> 需要，按项目可选开启</label>
-      <label><input type="radio" name="q19_match" value="以后再说"> 以后再说（P2期）</label>
-      <label><input type="radio" name="q19_match" value="不需要"> 不需要</label>
-      <label><input type="radio" name="q19_match" value="想了解更多"> 不确定，想进一步了解</label>
+      <label><input type="radio" name="matching" value="需要"> 需要</label>
+      <label><input type="radio" name="matching" value="以后再说"> 以后再说</label>
+      <label><input type="radio" name="matching" value="不需要"> 不需要</label>
+      <label><input type="radio" name="matching" value="想了解更多"> 想进一步了解</label>
     </div>
   </div>
   <div class="form-group" data-q="20">
-    <label class="q">Q20. 是否需要"月捐"功能？<span class="required">*</span></label>
+    <label class="q">Q20. 月捐？<span class="required">*</span></label>
     <div class="options">
-      <label><input type="radio" name="q20_monthly" value="P1要"> 第一期就要</label>
-      <label><input type="radio" name="q20_monthly" value="P2再说"> 以后再说</label>
-      <label><input type="radio" name="q20_monthly" value="不需要"> 不需要</label>
+      <label><input type="radio" name="monthly" value="P1要"> 第一期要</label>
+      <label><input type="radio" name="monthly" value="P2再说"> 以后再说</label>
+      <label><input type="radio" name="monthly" value="不需要"> 不需要</label>
     </div>
   </div>
   <div class="form-group" data-q="21">
-    <label class="q">Q21. 是否需要"数据大屏"？<span class="required">*</span></label>
+    <label class="q">Q21. 数据大屏？<span class="required">*</span></label>
     <div class="options">
-      <label><input type="radio" name="q21_screen" value="需要"> 需要</label>
-      <label><input type="radio" name="q21_screen" value="不需要"> 不需要</label>
+      <label><input type="radio" name="big_screen" value="需要"> 需要</label>
+      <label><input type="radio" name="big_screen" value="不需要"> 不需要</label>
     </div>
   </div>
 </div>
@@ -323,52 +308,50 @@
 <!-- 第六部分：时间与预算 -->
 <div class="form-section">
   <h3>⏱️ 第六部分：时间与预算</h3>
-
   <div class="form-group" data-q="22">
-    <label class="q">Q22. 期望的上线时间？<span class="required">*</span></label>
+    <label class="q">Q22. 期望上线时间？<span class="required">*</span></label>
     <div class="options">
-      <label><input type="radio" name="q22_time" value="3个月内"> 3 个月内</label>
-      <label><input type="radio" name="q22_time" value="3-6个月"> 3 - 6 个月</label>
-      <label><input type="radio" name="q22_time" value="6个月以上"> 6 个月以上</label>
-      <label><input type="radio" name="q22_time" value="暂无要求"> 暂无明确时间要求</label>
+      <label><input type="radio" name="timeline" value="3个月内"> 3 个月内</label>
+      <label><input type="radio" name="timeline" value="3-6个月"> 3–6 个月</label>
+      <label><input type="radio" name="timeline" value="6个月以上"> 6 个月以上</label>
+      <label><input type="radio" name="timeline" value="暂无要求"> 暂无明确要求</label>
     </div>
   </div>
   <div class="form-group" data-q="23">
-    <label class="q">Q23. 项目预算范围？<span class="required">*</span></label>
+    <label class="q">Q23. 预算范围？<span class="required">*</span></label>
     <div class="options">
-      <label><input type="radio" name="q23_budget" value="3万以下"> 3 万以下</label>
-      <label><input type="radio" name="q23_budget" value="3-5万"> 3 - 5 万</label>
-      <label><input type="radio" name="q23_budget" value="5-10万"> 5 - 10 万</label>
-      <label><input type="radio" name="q23_budget" value="10万以上"> 10 万以上</label>
-      <label><input type="radio" name="q23_budget" value="暂未确定"> 暂未确定</label>
+      <label><input type="radio" name="budget" value="3万以下"> 3 万以下</label>
+      <label><input type="radio" name="budget" value="3-5万"> 3–5 万</label>
+      <label><input type="radio" name="budget" value="5-10万"> 5–10 万</label>
+      <label><input type="radio" name="budget" value="10万以上"> 10 万以上</label>
+      <label><input type="radio" name="budget" value="暂未确定"> 暂未确定</label>
     </div>
   </div>
   <div class="form-group" data-q="24">
-    <label class="q">Q24. 是否有IT技术人员可配合对接？<span class="required">*</span></label>
+    <label class="q">Q24. 有IT人员配合吗？<span class="required">*</span></label>
     <div class="options">
-      <label><input type="radio" name="q24_it" value="有专职"> 有专职 IT 人员</label>
-      <label><input type="radio" name="q24_it" value="有兼职"> 有兼职或外聘 IT 支持</label>
-      <label><input type="radio" name="q24_it" value="没有"> 没有，全靠开发方</label>
+      <label><input type="radio" name="has_it" value="有专职"> 有专职IT</label>
+      <label><input type="radio" name="has_it" value="有兼职"> 有兼职/外聘</label>
+      <label><input type="radio" name="has_it" value="没有"> 没有，全靠开发方</label>
     </div>
   </div>
 </div>
 
-<!-- 第七部分：补充说明 -->
+<!-- 第七部分 -->
 <div class="form-section">
   <h3>💬 第七部分：补充说明</h3>
-
   <div class="form-group" data-q="25">
-    <label class="q">Q25. 有没有特别重要的需求或顾虑，想提前告诉我们？</label>
-    <textarea name="q25_notes" placeholder="请在此自由描述……"></textarea>
+    <label class="q">Q25. 特别需求或顾虑？</label>
+    <textarea name="notes" placeholder="请自由描述……"></textarea>
   </div>
   <div class="form-group" data-q="26">
-    <label class="q">Q26. 有没有参考的公益小程序（你觉得做得好的）？</label>
-    <textarea name="q26_ref" placeholder="请在此自由描述……"></textarea>
+    <label class="q">Q26. 有没有参考的公益小程序？</label>
+    <textarea name="reference" placeholder="请自由描述……"></textarea>
   </div>
 </div>
 
 <div class="submit-area">
-  <p>📌 填写完毕后请点击提交，我们会根据您的选择出具开发方案和报价</p>
+  <p>📌 提交后我们将通过飞书收到通知，2 个工作日内与您联系</p>
   <button type="submit" class="btn-submit">📤 提交需求</button>
   <div class="result-box" id="resultBox"></div>
 </div>
@@ -378,66 +361,117 @@
 
 <script>
 (function(){
-  const form=document.getElementById('surveyForm');
-  const allGroups=form.querySelectorAll('.form-group[data-q]');
-  const totalQs=allGroups.length;
-  document.getElementById('totalQ').textContent=totalQs;
+  var form = document.getElementById('surveyForm');
+  var allGroups = form.querySelectorAll('.form-group[data-q]');
+  var totalQs = allGroups.length;
+  document.getElementById('totalQ').textContent = totalQs;
 
   function updateProgress(){
-    let answered=0;
-    allGroups.forEach(g=>{
-      const checks=g.querySelectorAll('input[type="radio"]:checked,input[type="checkbox"]:checked');
-      const texts=g.querySelectorAll('input[type="text"],textarea');
-      let hasText=false;
-      texts.forEach(t=>{if(t.value.trim())hasText=true});
-      if(checks.length>0||hasText)answered++;
+    var answered = 0;
+    allGroups.forEach(function(g){
+      var checks = g.querySelectorAll('input[type="radio"]:checked,input[type="checkbox"]:checked');
+      var texts = g.querySelectorAll('input[type="text"],textarea');
+      var hasText = false;
+      texts.forEach(function(t){ if(t.value.trim()) hasText = true; });
+      if(checks.length > 0 || hasText) answered++;
     });
-    const pct=Math.round((answered/totalQs)*100);
-    document.getElementById('progressFill').style.width=pct+'%';
-    document.getElementById('progressText').textContent='已填 '+answered+' / '+totalQs+' 题';
+    var pct = Math.round((answered / totalQs) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressText').textContent = '已填 ' + answered + ' / ' + totalQs + ' 题';
   }
 
-  form.addEventListener('change',updateProgress);
-  form.addEventListener('input',updateProgress);
+  form.addEventListener('change', updateProgress);
+  form.addEventListener('input', updateProgress);
 
-  form.addEventListener('change',function(e){
-    if(e.target.type==='radio'||e.target.type==='checkbox'){
-      const pl=e.target.closest('label');
-      if(!pl)return;
-      const all=pl.parentElement.querySelectorAll('label');
-      if(e.target.type==='radio')all.forEach(l=>l.classList.remove('selected'));
-      if(e.target.checked)pl.classList.add('selected');
+  form.addEventListener('change', function(e){
+    if(e.target.type === 'radio' || e.target.type === 'checkbox'){
+      var pl = e.target.closest('label');
+      if(!pl) return;
+      var all = pl.parentElement.querySelectorAll('label');
+      if(e.target.type === 'radio') all.forEach(function(l){ l.classList.remove('selected'); });
+      if(e.target.checked) pl.classList.add('selected');
       else pl.classList.remove('selected');
     }
   });
 
-  form.addEventListener('submit',function(e){
+  form.addEventListener('submit', async function(e){
     e.preventDefault();
-    const result={};
-    const fd=new FormData(form);
-    for(const[k,v]of fd.entries()){
+    var btn = document.querySelector('.btn-submit');
+    btn.disabled = true;
+    btn.textContent = '⏳ 提交中...';
+
+    // 收集答案
+    var result = {};
+    var fd = new FormData(form);
+    fd.forEach(function(v, k){
       if(result[k]){
-        if(Array.isArray(result[k]))result[k].push(v);
-        else result[k]=[result[k],v];
-      }else{result[k]=v}
+        if(Array.isArray(result[k])) result[k].push(v);
+        else result[k] = [result[k], v];
+      } else { result[k] = v; }
+    });
+    var radios = form.querySelectorAll('input[type="radio"]');
+    var rn = new Set();
+    radios.forEach(function(r){ rn.add(r.name); });
+    rn.forEach(function(name){ if(!result[name]) result[name] = '(未选择)'; });
+
+    // 生成飞书消息
+    var labels = {
+      org_name:'机构名称', contact_name:'填表人', contact_info:'联系方式',
+      has_platform:'现有平台', current_method:'当前管理方式', current_system_detail:'系统名称',
+      donate_features:'捐款功能', donate_tiers:'捐款档位', tiers_input:'档位金额', allow_anonymous:'允许匿名',
+      scene_entry:'场景化入口', feedback_loop:'捐款反馈',
+      ben_features:'受助人功能', ben_fields:'登记字段', ben_other_fields:'其他字段',
+      doc_types:'证明材料', doc_other_types:'其他材料',
+      audit_levels:'审核层级', partner_entry:'合作机构录入',
+      proj_features:'项目管理', admin_fee:'管理费', fee_rate:'管理费比例',
+      dignity_payment:'尊严支付', matching:'企业配捐', monthly:'月捐', big_screen:'数据大屏',
+      timeline:'期望上线', budget:'预算范围', has_it:'IT人员',
+      notes:'补充说明', reference:'参考小程序'
+    };
+    var lines = ['📋 新问卷提交\n'];
+    Object.entries(result).forEach(function(entry){
+      var k = entry[0], v = entry[1];
+      var label = labels[k] || k;
+      var val = Array.isArray(v) ? v.join('、') : v;
+      if(val && val !== '(未选择)') lines.push('**' + label + '**：' + val);
+    });
+
+    // 计算飞书签名
+    var SECRET = 'AH3Ef7u3dL8x8J8A4MMjSb';
+    var ts = Math.floor(Date.now() / 1000).toString();
+    var enc = new TextEncoder();
+    var key = await crypto.subtle.importKey('raw', enc.encode(SECRET), {name:'HMAC', hash:'SHA-256'}, false, ['sign']);
+    var sig = await crypto.subtle.sign('HMAC', key, enc.encode(ts + '\n' + SECRET));
+    var signBytes = new Uint8Array(sig);
+    var sign = btoa(String.fromCharCode.apply(null, signBytes));
+
+    // 发送飞书
+    var box = document.getElementById('resultBox');
+    try {
+      var resp = await fetch('https://open.feishu.cn/open-apis/bot/v2/hook/312ede47-b3e2-414a-8dfd-cda7cd9bf969', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ timestamp: ts, sign: sign, msg_type: 'text', content: { text: lines.join('\n') } })
+      });
+      var data = await resp.json();
+      if(data.code === 0){
+        box.classList.add('show');
+        box.innerHTML = '<strong>✅ 提交成功！</strong> 我们已收到您的需求，将在 2 个工作日内与您联系。';
+      } else {
+        throw new Error(data.msg || '飞书返回异常');
+      }
+    } catch(err){
+      box.classList.add('show');
+      box.innerHTML = '<strong>⚠️ 发送失败</strong>，请截图提交内容发给对接人：\n\n' + JSON.stringify(result, null, 2);
+      console.error('飞书提交失败：', err);
     }
-    const radios=form.querySelectorAll('input[type="radio"]');
-    const rn=new Set();
-    radios.forEach(r=>rn.add(r.name));
-    rn.forEach(name=>{if(!result[name])result[name]='(未选择)'});
-
-    const box=document.getElementById('resultBox');
-    box.classList.add('show');
-    box.innerHTML='<strong>✅ 提交成功！以下是您的选择汇总：</strong>\n\n'+JSON.stringify(result,null,2);
-    box.scrollIntoView({behavior:'smooth',block:'center'});
-
-    // TODO: 配置你的数据接收端点
-    console.log('问卷结果：', result);
+    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    btn.disabled = false;
+    btn.textContent = '📤 提交需求';
   });
 
   updateProgress();
 })();
 </script>
-
 </body>
 </html>
