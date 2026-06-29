@@ -441,6 +441,13 @@
     var text = lines.join('\n');
     var box = document.getElementById('resultBox');
 
+    // 诊断：先验证 resultBox 可否显示
+    box.style.display = 'block';
+    box.style.maxHeight = 'none';
+    box.style.marginTop = '20px';
+    box.innerHTML = '<div style="background:#fffbe6;padding:16px;border-radius:10px;text-align:center">⏳ 正在提交...</div>';
+    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
     try {
       var resp = await fetch('https://1448396925-j94riyg7qv.ap-guangzhou.tencentscf.com', {
         method: 'POST',
