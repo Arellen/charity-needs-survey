@@ -448,34 +448,27 @@
     for(var i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
     var sign = btoa(binary);
 
-    // 发送飞书（fetch 优先，CORS拦截则回退 sendBeacon）
+    // 通过 Vercel API 中继发送飞书（同域请求，无 CORS 问题）
     var box = document.getElementById('resultBox');
-    var payload = JSON.stringify({ timestamp: ts, sign: sign, msg_type: 'text', content: { text: lines.join('\n') } });
-    var sent = false;
+    var payload = { timestamp: ts, sign: sign, msg_type: 'text', content: { text: lines.join('\n') } };
 
     try {
-      var resp = await fetch('https://open.feishu.cn/open-apis/bot/v2/hook/16381057-3595-48f4-89bc-8504d2901ab3', {
+      var resp = await fetch('/api/relay', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: payload
+        body: JSON.stringify(payload)
       });
       var data = await resp.json();
-      if(data.code === 0) sent = true;
-    } catch(e){}
-
-    if(!sent){
-      try {
-        var blob = new Blob([payload], {type: 'application/json'});
-        sent = navigator.sendBeacon('https://open.feishu.cn/open-apis/bot/v2/hook/16381057-3595-48f4-89bc-8504d2901ab3', blob);
-      } catch(e){}
-    }
-
-    if(sent){
+      if(data.code === 0){
+        box.classList.add('show');
+        box.innerHTML = '<strong>✅ 提交成功！</strong> 我们已收到您的需求，将在 2 个工作日内与您联系。';
+      } else {
+        box.classList.add('show');
+        box.innerHTML = '<strong>⚠️ 发送异常：</strong>' + JSON.stringify(data);
+      }
+    } catch(err){
       box.classList.add('show');
-      box.innerHTML = '<strong>✅ 提交成功！</strong> 我们已收到您的需求，将在 2 个工作日内与您联系。';
-    } else {
-      box.classList.add('show');
-      box.innerHTML = '<strong>⚠️ 发送失败</strong>，请截图提交内容发给对接人：\n\n' + JSON.stringify(result, null, 2);
+      box.innerHTML = '<strong>⚠️ 发送失败：</strong>' + err.message + '\n\n请截图发给对接人：\n' + JSON.stringify(result, null, 2);
     }
     box.scrollIntoView({ behavior: 'smooth', block: 'center' });
     btn.disabled = false;
