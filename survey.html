@@ -441,13 +441,6 @@
     var text = lines.join('\n');
     var box = document.getElementById('resultBox');
 
-    // 诊断：先验证 resultBox 可否显示
-    box.style.display = 'block';
-    box.style.maxHeight = 'none';
-    box.style.marginTop = '20px';
-    box.innerHTML = '<div style="background:#fffbe6;padding:16px;border-radius:10px;text-align:center">⏳ 正在提交...</div>';
-    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
     try {
       var resp = await fetch('https://1448396925-j94riyg7qv.ap-guangzhou.tencentscf.com', {
         method: 'POST',
@@ -462,22 +455,9 @@
       }
 
       if(data.code === 0){
-        // 简单的确认页
-        document.getElementById('surveyForm').style.display = 'none';
-        document.querySelector('.progress-bar-wrap').style.display = 'none';
-        document.querySelector('.intro').style.display = 'none';
-        var now = new Date();
-        var id = 'RQ' + now.getFullYear() + (now.getMonth()<9?'0':'') + (now.getMonth()+1) + (now.getDate()<10?'0':'') + now.getDate() + '-' + (now.getHours()<10?'0':'') + now.getHours() + (now.getMinutes()<10?'0':'') + now.getMinutes();
-        var summaryHtml = '<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:32px 20px">';
-        summaryHtml += '<div style="text-align:center;font-size:48px;margin-bottom:12px">✅</div>';
-        summaryHtml += '<h2 style="text-align:center;color:#1a6b4b;margin-bottom:4px">提交成功</h2>';
-        summaryHtml += '<p style="text-align:center;color:#9ca3af;font-size:13px;margin-bottom:20px">编号：' + id + '</p>';
-        summaryHtml += '<p style="text-align:center;color:#6b7280;font-size:14px;margin-bottom:6px">我们已收到您的需求，将在 <b>2 个工作日内</b> 与您联系。</p>';
-        summaryHtml += '<p style="text-align:center;color:#9ca3af;font-size:12px">📸 请截图保存此页面作为凭证</p>';
-        summaryHtml += '</div>';
-        box.innerHTML = summaryHtml;
-        box.style.cssText = 'display:block;max-height:none;margin-top:20px';
-        box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // 成功后跳转到独立确认页
+        sessionStorage.setItem('surveyResult', JSON.stringify({ lines: lines, time: Date.now() }));
+        window.location.href = 'confirmed.html';
       } else {
         box.classList.add('show');
         box.innerHTML = '<strong>⚠️ 发送异常：</strong>' + JSON.stringify(data);
