@@ -37,13 +37,21 @@ def get_tenant_token():
 
     url = f'{FEISHU_API}/auth/v3/tenant_access_token/internal'
     body = json.dumps({'app_id': APP_ID, 'app_secret': APP_SECRET}).encode()
-    req = urllib.request.Request(url, data=body,
-        headers={'Content-Type': 'application/json'})
-    resp = json.loads(urllib.request.urlopen(req, timeout=5).read())
-    token = resp.get('tenant_access_token', '')
-    _token_cache['token'] = token
-    _token_cache['expires'] = now + 3600  # 提前一点过期
-    return token
+    try:
+        req = urllib.request.Request(url, data=body,
+            headers={'Content-Type': 'application/json'})
+        raw = urllib.request.urlopen(req, timeout=5).read()
+        resp = json.loads(raw)
+        print(f'[token] APP_ID={APP_ID[:8]}... SECRET_LEN={len(APP_SECRET)} resp={resp}')
+        token = resp.get('tenant_access_token', '')
+        if not token:
+            raise Exception(f'获取token失败: {resp}')
+        _token_cache['token'] = token
+        _token_cache['expires'] = now + 3600
+        return token
+    except Exception as e:
+        print(f'[token] 失败: {e}')
+        raise
 
 def feishu_sign(secret):
     """生成飞书 Webhook 签名"""
@@ -68,11 +76,23 @@ def write_bitable(table_id, fields):
     token = get_tenant_token()
     url = f'{FEISHU_API}/bitable/v1/apps/{BITABLE_APP_TOKEN}/tables/{table_id}/records'
     body = json.dumps({'fields': fields}).encode()
-    req = urllib.request.Request(url, data=body, headers={
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {token}',
-    })
-    return json.loads(urllib.request.urlopen(req, timeout=5).read())
+    print(f'[bitable] table={table_id} fields_count={len(fields)} token={token[:10]}...')
+    try:
+        req = urllib.request.Request(url, data=body, headers={
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {token}',
+        })
+        raw = urllib.request.urlopen(req, timeout=5).read()
+        resp = json.loads(raw)
+        print(f'[bitable] 成功: code={resp.get("code")} msg={resp.get("msg")}')
+        return resp
+    except urllib.error.HTTPError as e:
+        err_body = e.read().decode()
+        print(f'[bitable] HTTP {e.code}: {err_body}')
+        raise Exception(f'HTTP {e.code}: {err_body}')
+    except Exception as e:
+        print(f'[bitable] 失败: {e}')
+        raise
 
 def map_to_fields(project_name, ver, lines):
     """把问卷文本行映射为多维表格字段"""
