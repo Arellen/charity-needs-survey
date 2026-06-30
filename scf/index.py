@@ -1,26 +1,21 @@
 # -*- coding: utf-8 -*-
 """
 腾讯云函数 SCF · 飞书 Webhook 中继 + 多维表格存档
+配置从多维表格「项目目录」和「问卷版本」读取，新增项目/版本无需改代码
 """
 import json, urllib.request, hmac, hashlib, base64, time, os
 
-# ===================== 配置 =====================
 APP_ID = os.environ.get('APP_ID', 'cli_aac89563e1e59bdf')
 APP_SECRET = os.environ.get('APP_SECRET', '')
 BITABLE_APP_TOKEN = os.environ.get('BITABLE_APP_TOKEN', 'K3jLbFejyaeZzPsDTzmcEco5ndl')
+# 三张工作表的 table_id
+DIR_TABLE_ID = 'tblpjL2mkUZVuNVL'    # 项目目录
+VER_TABLE_ID = os.environ.get('VER_TABLE_ID', '')  # 问卷版本（建好后填环境变量）
 FEISHU_API = 'https://open.feishu.cn/open-apis'
 
-PROJECTS = {
-    'charity': {
-        'name': '公益小程序',
-        'webhook_url': os.environ.get('CHARITY_WEBHOOK_URL', ''),
-        'webhook_secret': os.environ.get('CHARITY_WEBHOOK_SECRET', ''),
-        'table_id': os.environ.get('CHARITY_TABLE_ID', 'tblvS2hZ3s41OvUX'),
-    },
-}
-
-# ===================== Token 缓存 =====================
 _token_cache = {'token': '', 'expires': 0}
+
+# ===================== 飞书 API 工具 =====================
 
 def get_tenant_token():
     now = time.time()
@@ -31,11 +26,26 @@ def get_tenant_token():
     req = urllib.request.Request(url, data=body, headers={'Content-Type': 'application/json'})
     resp = json.loads(urllib.request.urlopen(req, timeout=5).read())
     token = resp.get('tenant_access_token', '')
-    if not token:
-        raise Exception(f'获取token失败: {resp}')
+    if not token: raise Exception(f'获取token失败: {resp}')
     _token_cache['token'] = token
     _token_cache['expires'] = now + 3600
     return token
+
+def bitable_get(table_id, params=''):
+    """读多维表格记录"""
+    token = get_tenant_token()
+    url = f'{FEISHU_API}/bitable/v1/apps/{BITABLE_APP_TOKEN}/tables/{table_id}/records?{params}'
+    req = urllib.request.Request(url, headers={'Authorization': f'Bearer {token}'})
+    return json.loads(urllib.request.urlopen(req, timeout=5).read())
+
+def bitable_post(table_id, fields):
+    """写一行到多维表格"""
+    token = get_tenant_token()
+    url = f'{FEISHU_API}/bitable/v1/apps/{BITABLE_APP_TOKEN}/tables/{table_id}/records'
+    body = json.dumps({'fields': fields}).encode()
+    req = urllib.request.Request(url, data=body, headers={
+        'Content-Type': 'application/json', 'Authorization': f'Bearer {token}'})
+    return json.loads(urllib.request.urlopen(req, timeout=5).read())
 
 def feishu_sign(secret):
     ts = int(time.time())
@@ -45,19 +55,45 @@ def feishu_sign(secret):
 
 def send_webhook(url, secret, text):
     ts, sign = feishu_sign(secret)
-    body = json.dumps({'timestamp': ts, 'sign': sign, 'msg_type': 'text', 'content': {'text': text}}).encode()
+    body = json.dumps({'timestamp': ts, 'sign': sign, 'msg_type': 'text',
+                       'content': {'text': text}}).encode()
     req = urllib.request.Request(url, data=body, headers={'Content-Type': 'application/json'})
     return json.loads(urllib.request.urlopen(req, timeout=5).read())
 
-def write_bitable(table_id, fields):
-    token = get_tenant_token()
-    url = f'{FEISHU_API}/bitable/v1/apps/{BITABLE_APP_TOKEN}/tables/{table_id}/records'
-    body = json.dumps({'fields': fields}).encode()
-    req = urllib.request.Request(url, data=body, headers={
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {token}',
+# ===================== 配置查询 =====================
+
+def get_project_config(project_id):
+    """从「项目目录」表查项目配置"""
+    data = bitable_get(DIR_TABLE_ID)
+    for item in data.get('data', {}).get('items', []):
+        f = item.get('fields', {})
+        if f.get('项目标识') == project_id:
+            return f
+    return None
+
+def get_version_config(project_name, ver):
+    """从「问卷版本」表查版本配置"""
+    if not VER_TABLE_ID: return None
+    data = bitable_get(VER_TABLE_ID)
+    for item in data.get('data', {}).get('items', []):
+        f = item.get('fields', {})
+        if f.get('所属项目') == project_name and f.get('版本号') == ver:
+            return f
+    return None
+
+def ensure_version(project_name, ver):
+    """确保「问卷版本」表中有该版本，没有则自动创建"""
+    if not VER_TABLE_ID: return
+    existing = get_version_config(project_name, ver)
+    if existing: return existing
+    return bitable_post(VER_TABLE_ID, {
+        '所属项目': project_name,
+        '版本号': ver,
+        '问卷名称': f'{project_name} - {ver}',
+        '状态': '使用中',
     })
-    return json.loads(urllib.request.urlopen(req, timeout=5).read())
+
+# ===================== 字段映射 =====================
 
 def map_to_fields(project_name, ver, lines):
     raw = {}
@@ -67,7 +103,7 @@ def map_to_fields(project_name, ver, lines):
         try:
             end = ln.index('**', 2)
             key = ln[2:end]
-            val = ln[end+3:]  # ** ： = 3 chars
+            val = ln[end+3:]
             raw[key] = val
         except: continue
 
@@ -107,6 +143,7 @@ def map_to_fields(project_name, ver, lines):
     }
 
 # ===================== 主入口 =====================
+
 def main_handler(event, context):
     method = event.get('httpMethod') or \
              event.get('requestContext', {}).get('http', {}).get('method', 'POST')
@@ -123,23 +160,35 @@ def main_handler(event, context):
     project_id = payload.get('project', 'charity')
     ver = payload.get('ver', 'v1')
 
-    proj = PROJECTS.get(project_id)
+    # 1. 查「项目目录」→ 拿 webhook + table_id
+    proj = get_project_config(project_id)
     if not proj:
-        return {'statusCode': 400, 'headers': {'Access-Control-Allow-Origin': '*'}, 'body': '{"error":"unknown project"}'}
+        return {'statusCode': 400,
+                'headers': {'Access-Control-Allow-Origin': '*'},
+                'body': '{"error":"unknown project: ' + project_id + '"}'}
 
-    # 1. 发飞书群消息
+    webhook_url = proj.get('webhook_url', '')
+    webhook_secret = proj.get('webhook_secret', '')
+    table_id = proj.get('提交表ID', '')  # 该项目提交数据写到哪个工作表
+
+    # 2. 自动维护「问卷版本」表（不存在则创建）
+    ensure_version(proj.get('项目名称', project_id), ver)
+
+    # 3. 发飞书群消息
     try:
-        webhook_resp = send_webhook(proj['webhook_url'], proj['webhook_secret'], text)
+        webhook_resp = send_webhook(webhook_url, webhook_secret,
+            f'[{proj.get("项目名称", project_id)} · {ver}]\n{text}')
     except Exception as e:
         webhook_resp = {'error': str(e)}
 
-    # 2. 写多维表格
+    # 4. 写多维表格提交记录
     bitable_resp = {}
-    try:
-        fields = map_to_fields(proj['name'], ver, text.split('\n'))
-        bitable_resp = write_bitable(proj['table_id'], fields)
-    except Exception as e:
-        bitable_resp = {'error': str(e)}
+    if table_id:
+        try:
+            fields = map_to_fields(proj.get('项目名称', project_id), ver, text.split('\n'))
+            bitable_resp = bitable_post(table_id, fields)
+        except Exception as e:
+            bitable_resp = {'error': str(e)}
 
     return {
         'statusCode': 200,
