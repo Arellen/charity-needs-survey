@@ -91,7 +91,7 @@ def ensure_version(project_name, project_id, ver):
         '所属项目': project_name,
         '版本号': ver,
         '问卷名称': f'{project_name} - {ver}',
-        '问卷链接': {'link': url, 'text': f'{project_name} {ver} 问卷'},
+        '问卷链接': url,
         '状态': '使用中',
     })
 
@@ -174,7 +174,7 @@ def main_handler(event, context):
     table_id = proj.get('提交表ID', '')  # 该项目提交数据写到哪个工作表
 
     # 2. 自动维护「问卷版本」表
-    ver_resp = ensure_version(proj.get('项目名称', project_id), project_id, ver)
+    ensure_version(proj.get('项目名称', project_id), project_id, ver)
 
     # 3. 发飞书群消息
     try:
@@ -196,6 +196,5 @@ def main_handler(event, context):
         'statusCode': 200,
         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
         'body': json.dumps({'code': webhook_resp.get('code', 0),
-                            'bitable': bitable_resp,
-                            'version': ver_resp}, ensure_ascii=False, default=str),
+                            'bitable': bitable_resp}, ensure_ascii=False),
     }
