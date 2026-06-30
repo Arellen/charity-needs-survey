@@ -52,6 +52,15 @@
   }
   .refresh-btn:hover{opacity:.9}
   .empty{text-align:center;padding:30px;color:var(--gray-400);font-size:13px}
+  .list-item{cursor:pointer;transition:background .15s}
+  .list-item:hover{background:var(--green-light)}
+  .list-item .arrow{transition:transform .2s;display:inline-block;font-size:12px;color:var(--gray-400)}
+  .list-item.open .arrow{transform:rotate(90deg)}
+  .detail-panel{display:none;padding:14px 18px;background:#f9fafb;border-top:1px solid var(--gray-200)}
+  .detail-panel.show{display:block}
+  .detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px 16px}
+  .detail-grid .kv{font-size:12px;padding:3px 0;border-bottom:1px solid #f3f4f6}
+  .detail-grid .kv .k{color:var(--gray-400);margin-right:8px}
   @media(max-width:500px){.heat-row .label{width:70px;font-size:10px}}
 </style>
 </head>
@@ -104,11 +113,24 @@ function render(d){
     '<div class="stat-card"><div class="val">' + (d.total||0) + '</div><div class="lbl">总提交数</div></div>' +
     '<div class="stat-card"><div class="val" style="color:var(--blue)">' + (d.stats ? Object.keys(d.stats).length : 0) + '</div><div class="lbl">涉及功能点</div></div>';
 
-  // 最近提交
+  // 最近提交（可点击展开详情）
   var recentHtml = '';
   if(d.recent && d.recent.length > 0){
-    d.recent.reverse().forEach(function(r){
-      recentHtml += '<div class="list-item"><span class="org">' + r.org + '</span><span class="meta">' + r.person + '</span><span class="meta">' + r.time + '</span><span class="meta">' + (r.ver||'') + '</span></div>';
+    var rev = d.recent.slice().reverse();
+    rev.forEach(function(r, idx){
+      recentHtml += '<div>';
+      recentHtml += '<div class="list-item" onclick="toggleDetail(this)" data-idx="' + idx + '"><span class="org">' + r.org + '</span><span class="meta">' + r.person + '</span><span class="meta">' + r.time + '</span><span class="meta">' + (r.ver||'') + '</span><span class="arrow">▶</span></div>';
+      // 详情面板
+      recentHtml += '<div class="detail-panel"><div class="detail-grid">';
+      if(r.fields){
+        var skipKeys = ['提交时间','提交编号','机构名称','填表人','联系方式','版本标记'];
+        Object.entries(r.fields).forEach(function(e){
+          if(skipKeys.indexOf(e[0]) < 0 && e[1]){
+            recentHtml += '<div class="kv"><span class="k">' + e[0] + '</span>' + e[1] + '</div>';
+          }
+        });
+      }
+      recentHtml += '</div></div></div>';
     });
   } else {
     recentHtml = '<div class="empty">暂无提交数据</div>';
@@ -127,6 +149,21 @@ function render(d){
     heatHtml = '<div class="empty">暂无统计数据</div>';
   }
   document.getElementById('heatmap').innerHTML = heatHtml;
+}
+
+function toggleDetail(el){
+  var panel = el.nextElementSibling;
+  var wasOpen = el.classList.contains('open');
+  // 关闭所有
+  document.querySelectorAll('.list-item.open').forEach(function(row){
+    row.classList.remove('open');
+    row.nextElementSibling.classList.remove('show');
+  });
+  // 切换当前
+  if(!wasOpen){
+    el.classList.add('open');
+    panel.classList.add('show');
+  }
 }
 
 load();

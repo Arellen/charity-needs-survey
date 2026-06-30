@@ -172,26 +172,39 @@ def main_handler(event, context):
         total = data.get('data', {}).get('total', len(items))
 
         # 统计各字段选中次数
+        # 关注的字段列表（捐款功能、受助人功能等）
+        stat_fields = ['捐款功能','受助人功能','登记字段','证明材料','项目管理功能',
+                       '尊严支付','企业配捐','月捐','数据大屏','场景化入口','捐款反馈']
         stats = {}
         for item in items:
             f = item.get('fields', {})
-            for k, v in f.items():
-                if v and isinstance(v, str) and '、' in v:
-                    for opt in v.split('、'):
-                        opt = opt.strip()
-                        if opt: stats[opt] = stats.get(opt, 0) + 1
+            for field_name in stat_fields:
+                v = f.get(field_name, '')
+                if v and isinstance(v, str):
+                    if '、' in v:
+                        for opt in v.split('、'):
+                            opt = opt.strip()
+                            if opt: stats[opt] = stats.get(opt, 0) + 1
+                    elif v.strip():
+                        stats[v] = stats.get(v, 0) + 1
 
-        # 最近提交
+        # 最近提交（含完整字段数据供看板展示详情）
+        def simplify(v):
+            if isinstance(v, list): return '、'.join(v)
+            return str(v) if v else ''
         recent = []
-        for item in items[-5:]:
+        for item in items[-10:]:
             f = item.get('fields', {})
-            recent.append({'org': f.get('机构名称','?'), 'person': f.get('填表人','?'),
-                           'time': f.get('提交编号','?'), 'ver': f.get('版本标记','?')})
+            recent.append({
+                'org': f.get('机构名称','?'), 'person': f.get('填表人','?'),
+                'time': f.get('提交编号','?'), 'ver': f.get('版本标记','?'),
+                'fields': {k: simplify(v) for k, v in f.items() if v and k not in ('提交编号',)}
+            })
 
         return {'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({'total': total, 'recent': recent,
-                                    'stats': dict(sorted(stats.items(), key=lambda x: -x[1])[:15])},
+                                    'stats': dict(sorted(stats.items(), key=lambda x: -x[1])[:20])},
                                    ensure_ascii=False)}
 
     # === 正常提交模式 ===
