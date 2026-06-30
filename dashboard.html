@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数据看板 · 公益小程序</title>
+<style>
+  :root{--green:#1a6b4b;--green-light:#ecfdf5;--orange:#e8734a;--blue:#2563eb;--gray-50:#f9fafb;--gray-200:#e5e7eb;--gray-400:#9ca3af;--gray-600:#6b7280;--gray-800:#1f2937;--radius:12px;--shadow:0 1px 3px rgba(0,0,0,.08)}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--gray-50);color:var(--gray-800);line-height:1.7;
+  }
+  .topbar{
+    position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid var(--gray-200);
+    padding:14px 16px;display:flex;align-items:center;gap:12px;
+  }
+  .topbar .back{font-size:14px;color:var(--gray-600);text-decoration:none}
+  .topbar .back:hover{color:var(--green)}
+  .topbar h1{font-size:17px;font-weight:700}
+  .container{max-width:800px;margin:0 auto;padding:16px 16px 40px}
+  .loading{padding:60px 0;text-align:center;color:var(--gray-400);font-size:14px}
+
+  /* 统计卡片 */
+  .stat-row{display:flex;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+  .stat-card{
+    flex:1;min-width:150px;background:#fff;border-radius:var(--radius);
+    padding:20px;box-shadow:var(--shadow);border:1px solid var(--gray-200);text-align:center;
+  }
+  .stat-card .val{font-size:32px;font-weight:800;color:var(--green)}
+  .stat-card .lbl{font-size:12px;color:var(--gray-400);margin-top:4px}
+
+  /* 列表卡片 */
+  .section{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--gray-200);margin-bottom:16px}
+  .section .head{padding:14px 18px;border-bottom:1px solid var(--gray-200);font-size:14px;font-weight:600}
+  .list-item{display:flex;align-items:center;padding:10px 18px;border-bottom:1px solid var(--gray-50);font-size:13px;gap:12px}
+  .list-item:last-child{border-bottom:none}
+  .list-item .org{flex:1;font-weight:500}
+  .list-item .meta{color:var(--gray-400);font-size:11px}
+
+  /* 热力图 */
+  .heatmap{padding:14px 18px}
+  .heat-row{display:flex;align-items:center;margin-bottom:8px;gap:10px}
+  .heat-row .label{width:100px;text-align:right;font-size:12px;color:var(--gray-600);flex-shrink:0}
+  .heat-row .bar-wrap{flex:1;height:22px;background:var(--gray-200);border-radius:4px;overflow:hidden}
+  .heat-row .bar{height:100%;background:linear-gradient(90deg,#6ee7b7,#1a6b4b);border-radius:4px;transition:width .5s;min-width:2px}
+  .heat-row .count{width:36px;font-size:12px;color:var(--gray-400);text-align:left;flex-shrink:0}
+
+  .refresh-btn{
+    display:inline-block;padding:8px 20px;background:var(--green);color:#fff;border:none;
+    border-radius:20px;font-size:13px;cursor:pointer;margin-top:8px;float:right;
+  }
+  .refresh-btn:hover{opacity:.9}
+  .empty{text-align:center;padding:30px;color:var(--gray-400);font-size:13px}
+  @media(max-width:500px){.heat-row .label{width:70px;font-size:10px}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a href="index.html" class="back">← 返回首页</a>
+  <h1>📊 数据看板</h1>
+</div>
+<div class="container">
+  <div class="loading" id="loading">⏳ 加载中...</div>
+  <div id="content" style="display:none">
+    <div class="stat-row" id="statRow"></div>
+    <div class="section">
+      <div class="head">📋 最近提交</div>
+      <div id="recentList"></div>
+    </div>
+    <div class="section">
+      <div class="head">🔥 功能需求热力图<button class="refresh-btn" onclick="load()">🔄 刷新</button></div>
+      <div class="heatmap" id="heatmap"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function load(){
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('content').style.display = 'none';
+  try {
+    var resp = await fetch('https://1448396925-j94riyg7qv.ap-guangzhou.tencentscf.com', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({action:'dashboard', project:'charity'})
+    });
+    var data = await resp.json();
+    if(data.body && typeof data.body === 'string'){
+      try { data = JSON.parse(data.body); } catch(e){}
+    }
+    render(data);
+  } catch(e){
+    document.getElementById('loading').innerHTML = '❌ 加载失败: ' + e.message;
+  }
+}
+
+function render(d){
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('content').style.display = 'block';
+
+  // 统计卡片
+  document.getElementById('statRow').innerHTML =
+    '<div class="stat-card"><div class="val">' + (d.total||0) + '</div><div class="lbl">总提交数</div></div>' +
+    '<div class="stat-card"><div class="val" style="color:var(--blue)">' + (d.stats ? Object.keys(d.stats).length : 0) + '</div><div class="lbl">涉及功能点</div></div>';
+
+  // 最近提交
+  var recentHtml = '';
+  if(d.recent && d.recent.length > 0){
+    d.recent.reverse().forEach(function(r){
+      recentHtml += '<div class="list-item"><span class="org">' + r.org + '</span><span class="meta">' + r.person + '</span><span class="meta">' + r.time + '</span><span class="meta">' + (r.ver||'') + '</span></div>';
+    });
+  } else {
+    recentHtml = '<div class="empty">暂无提交数据</div>';
+  }
+  document.getElementById('recentList').innerHTML = recentHtml;
+
+  // 热力图
+  var heatHtml = '';
+  if(d.stats){
+    var max = Math.max.apply(null, Object.values(d.stats));
+    Object.entries(d.stats).forEach(function(e){
+      var pct = Math.round((e[1]/max)*100);
+      heatHtml += '<div class="heat-row"><span class="label">' + e[0] + '</span><div class="bar-wrap"><div class="bar" style="width:' + pct + '%"></div></div><span class="count">' + e[1] + '</span></div>';
+    });
+  } else {
+    heatHtml = '<div class="empty">暂无统计数据</div>';
+  }
+  document.getElementById('heatmap').innerHTML = heatHtml;
+}
+
+load();
+</script>
+</body>
+</html>

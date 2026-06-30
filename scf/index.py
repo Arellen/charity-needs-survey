@@ -158,6 +158,43 @@ def main_handler(event, context):
     body = event.get('body', '{}')
     if isinstance(body, dict): body = json.dumps(body)
     payload = json.loads(body)
+
+    # === 看板模式 ===
+    if payload.get('action') == 'dashboard':
+        project_id = payload.get('project', 'charity')
+        proj = get_project_config(project_id)
+        table_id = proj.get('提交表ID', '') if proj else ''
+        if not table_id:
+            return {'statusCode': 404, 'headers': {'Access-Control-Allow-Origin': '*'},
+                    'body': '{"error":"table not found"}'}
+        data = bitable_get(table_id, 'page_size=200')
+        items = data.get('data', {}).get('items', [])
+        total = data.get('data', {}).get('total', len(items))
+
+        # 统计各字段选中次数
+        stats = {}
+        for item in items:
+            f = item.get('fields', {})
+            for k, v in f.items():
+                if v and isinstance(v, str) and '、' in v:
+                    for opt in v.split('、'):
+                        opt = opt.strip()
+                        if opt: stats[opt] = stats.get(opt, 0) + 1
+
+        # 最近提交
+        recent = []
+        for item in items[-5:]:
+            f = item.get('fields', {})
+            recent.append({'org': f.get('机构名称','?'), 'person': f.get('填表人','?'),
+                           'time': f.get('提交编号','?'), 'ver': f.get('版本标记','?')})
+
+        return {'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'total': total, 'recent': recent,
+                                    'stats': dict(sorted(stats.items(), key=lambda x: -x[1])[:15])},
+                                   ensure_ascii=False)}
+
+    # === 正常提交模式 ===
     text = payload.get('text', '')
     project_id = payload.get('project', 'charity')
     ver = payload.get('ver', 'v1')
